@@ -1,0 +1,2314 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modern Dashboard</title>
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <!-- Meta tags for PWA -->
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+      :root {
+        /* Light Theme Variables */
+        --background: #C8DAEE;
+        --container-bg: rgb(250, 253, 255);
+        --img-container-bg: #F7FAFD;
+        --text-primary: #6A88BE;
+        --input-bg: #fefddf;
+        --input-border: #C8DAEE;
+        --button-bg: #6A88BE;
+        --button-hover-bg: #5A77A8;
+        --accent: #f98677;
+        --shadow: rgba(0, 0, 0, 0.05);
+        --input-focus-shadow: rgba(106, 136, 190, 0.2);
+        --toggle-bg: #6A88BE;
+        --toggle-color: white;
+        --card-bg: rgb(253, 254, 240);
+        --border-color: #C8DAEE;
+      }
+
+      [data-theme="dark"] {
+        /* Dark Theme Variables */
+        --background: #2A3B5A;
+        --container-bg: #1E2A44;
+        --img-container-bg: #26334F;
+        --text-primary: #A1B8E6;
+        --input-bg: #26334F;
+        --input-border: #3A4A6F;
+        --button-bg: #6A88BE;
+        --button-hover-bg: #5A77A8;
+        --accent: #FEAFA6;
+        --shadow: rgba(0, 0, 0, 0.3);
+        --input-focus-shadow: rgba(106, 136, 190, 0.3);
+        --toggle-bg: #A1B8E6;
+        --toggle-color: #1E2A44;
+        --card-bg: #26334F;
+        --border-color: #3A4A6F;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      body {
+        font-family: 'Urbanist', sans-serif;
+        background-color: var(--background);
+        color: var(--text-primary);
+        line-height: 1.5;
+      }
+
+      .menu-toggle {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1001;
+        background: var(--toggle-bg);
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: var(--toggle-color);
+        transition: all 0.3s ease;
+        display: none;
+      }
+
+      .menu-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 2px 4px var(--shadow);
+      }
+
+      @media (max-width: 768px) {
+        .menu-toggle {
+          display: flex;
+        }
+      }
+
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: var(--container-bg);
+        border-bottom: 1px solid var(--border-color);
+        z-index: 1000;
+        padding: 0 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .logo {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-left: 40px;
+      }
+
+      .search-bar {
+        flex: 1;
+        max-width: 500px;
+        margin: 0 24px;
+        position: relative;
+      }
+
+      .search-bar input {
+        width: 100%;
+        padding: 8px 16px 8px 40px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--container-bg);
+        font-size: 0.875rem;
+        color: var(--text-primary);
+      }
+
+      .search-bar i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-primary);
+      }
+
+      .nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .theme-toggle {
+        background: var(--toggle-bg);
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: var(--toggle-color);
+        transition: all 0.3s ease;
+      }
+
+      .theme-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 2px 4px var(--shadow);
+      }
+
+      .profile-img, .logo-img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .navbar a {
+        color: var(--text-primary);
+        text-decoration: none;
+      }
+
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 64px;
+        bottom: 0;
+        width: 256px;
+        background: var(--container-bg);
+        border-right: 1px solid var(--border-color);
+        padding: 24px;
+        overflow-y: auto;
+        transform: translateX(0);
+        transition: transform 0.3s ease;
+        z-index: 999;
+      }
+
+      .sidebar.hidden {
+        transform: translateX(-100%);
+      }
+
+      .main-content.expanded {
+        margin-left: 0;
+      }
+
+      .sidebar-profile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 24px;
+      }
+
+      .sidebar-profile img {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        margin-bottom: 8px;
+      }
+
+      .nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        border-radius: 8px;
+        color: var(--text-primary);
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .nav-link:hover {
+        background: var(--input-bg);
+      }
+
+      .nav-link.active {
+        background: var(--button-bg);
+        color: white;
+      }
+
+      .nav-link i {
+        margin-right: 12px;
+        width: 20px;
+      }
+
+      .main-content {
+        margin-left: 256px;
+        margin-top: 64px;
+        padding: 24px;
+        transition: margin-left 0.3s ease;
+      }
+
+      .schedule, .upcoming-schedule {
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 24px;
+        box-shadow: 0 4px 6px var(--shadow);
+      }
+
+      .schedule-item, .upcoming-schedule-item {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        background: var(--input-bg);
+        position: relative;
+      }
+      .pending-requests-section, .study-partners-section, .added-partners-section {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 24px;
+    box-shadow: 0 4px 6px var(--shadow);
+        }
+        
+        .pending-request-item, .study-partner-item, .added-partner-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .pending-request-actions, .study-partner-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .accept-btn, .reject-btn, .connect-btn {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .accept-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+        }
+        .reject-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+        }
+        .connect-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        .tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.875rem;
+        }
+      .schedule-item.expired, .upcoming-schedule-item.expired {
+        opacity: 0.6;
+        background: rgba(100, 100, 100, 0.1);
+      }
+
+      .schedule-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .schedule-actions button,
+      .schedule-actions a {
+        padding: 4px 12px;
+        font-size: 0.875rem;
+        border-radius: 4px;
+        text-decoration: none;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .schedule-actions .delete-btn {
+        background: #ff4444;
+      }
+
+      .schedule-actions .join-btn {
+        background: #28a745;
+      }
+
+      .schedule-actions .join-btn.disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+      }
+
+      .schedule-time {
+        min-width: 100px;
+        font-weight: 500;
+      }
+
+      .schedule-marker {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--button-bg);
+        margin: 0 16px;
+      }
+
+      .schedule-content {
+        flex: 1;
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        padding: 24px 0;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 6px var(--shadow);
+        transition: transform 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+      }
+
+      .message {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+      }
+
+      .success-message {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .error-message {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .expired-notice {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: #dc3545;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+      }
+
+      .tag {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        margin-left: 10px;
+      }
+
+      .tag.public {
+        background-color: #3e51d0;
+        color: white;
+      }
+
+      .tag.private {
+        background-color: #e01c71;
+        color: white;
+      }
+
+      .room-code {
+        font-size: 0.875rem;
+        color: var(--accent);
+        margin-top: 5px;
+      }
+
+      .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .activity-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: var(--input-bg);
+        border-radius: 50%;
+      }
+      .notes-section {
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 24px;
+        box-shadow: 0 4px 6px var(--shadow);
+      }
+      .toggle-notes-btn {
+        background: var(--button-bg);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+      }
+      .toggle-notes-btn:hover {
+        background: var(--button-hover-bg);
+      }
+      .filter-bar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .filter-select {
+        padding: 8px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text-primary);
+      }
+      .note-item {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        background: var(--input-bg);
+      }
+      .note-actions {
+        margin-top: 8px;
+        display: flex;
+        gap: 10px;
+      }
+      .download-btn, .review-btn {
+        padding: 4px 12px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      .download-btn {
+        background: #28a745;
+      }
+      .review-btn {
+        background: var(--button-bg);
+      }
+     
+      .review-section h3{
+        text-align: center;
+        padding: 1.5rem;
+      }
+      .review-item {
+        border-left: 2px solid var(--button-bg);
+        padding-left: 8px;
+        margin-bottom: 8px;
+      }
+      .form-select {
+          width: 100%;
+          padding: 0.8rem 1rem;
+          border: 2px solid #bdc3c7;
+          border-radius: 8px;
+          font-size: 1rem;
+          transition: border-color 0.3s ease;
+          background-color: white;
+          appearance: none;
+          background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%233496DB%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+          background-repeat: no-repeat;
+          background-position: right 0.7rem top 50%;
+          background-size: 0.65rem auto;
+      }
+
+      .form-select:focus {
+          border-color: #3498db;
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+      }
+
+      .form-textarea {
+          width: 50%;
+          padding: 1rem;
+          border: 2px solid #bdc3c7;
+          border-radius: 8px;
+          min-height: 120px;
+          font-size: 1rem;
+          line-height: 1.5;
+          transition: all 0.3s ease;
+      }
+
+      .form-textarea:focus {
+          border-color: #3498db;
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+      }
+
+      button[type="submit"]:hover {
+          background: #2980b9;
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      }
+
+      /* Existing reviews list */
+      .your-reviews {
+          margin-top: 2rem;
+          padding-top: 2rem;
+          border-top: 1px solid #ecf0f1;
+      }
+
+      .review-item {
+          background: white;
+          padding: 1.5rem;
+          border-radius: 10px;
+          margin-bottom: 1rem;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
+
+      .review-rating {
+          color: #f1c40f;
+          margin-bottom: 0.5rem;
+      }
+
+      @media (max-width: 768px) {
+            .review-section {
+                margin: 0.5rem;
+                /* padding: 1rem; */
+                border-radius: 12px;
+            }
+
+            h3 {
+              margin-top: 0.8rem;
+                font-size: 1.2rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .form-select {
+                padding: 0.7rem 1rem;
+                font-size: 0.95rem;
+            }
+
+            .form-textarea {
+                padding: 0.8rem;
+                font-size: 0.95rem;
+                min-height: 100px;
+            }
+
+            button[type="submit"] {
+                padding: 0.7rem 1rem;
+                font-size: 0.95rem;
+            }
+
+            .your-reviews {
+                padding-top: 1.5rem;
+            }
+
+            .review-item {
+                padding: 1rem;
+                margin-bottom: 0.8rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .form-textarea {
+              width: 70%;
+                padding: 0.8rem;
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+
+            .form-select {
+                padding: 0.6rem 0.8rem;
+            }
+
+            button[type="submit"] {
+                padding: 0.6rem 1rem;
+            }
+        }
+      
+      .mobile-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: var(--container-bg);
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0 24px;
+        z-index: 998;
+      }
+
+      .mobile-nav a {
+        color: var(--text-primary);
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .mobile-nav .nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1001;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.752);
+      }
+
+      .modal-content {
+        background: var(--container-bg);
+        margin: 10% auto;
+        padding: 2rem;
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        max-width: 500px;
+        box-shadow: 0 4px 6px var(--shadow);
+      }
+
+      .close-btn {
+        color: var(--text-primary);
+        float: right;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--input-border);
+        border-radius: 0.5rem;
+        background: var(--input-bg);
+        color: var(--text-primary);
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: var(--text-primary);
+        box-shadow: 0 0 0 3px var(--input-focus-shadow);
+      }
+
+      .form-group .radio-group {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .form-group .radio-group label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      .form-group .radio-group input {
+        margin-right: 0.5rem;
+        width: auto;
+      }
+      .logo-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.home-btn {
+  background: var(--input-border);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--toggle-color);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.home-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 4px var(--shadow);
+}
+      @media (max-width: 768px) {
+        .sidebar {
+          display: block;
+          transform: translateX(-100%);
+        }
+
+        .sidebar.active {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+
+        .search-bar {
+          display: none;
+        }
+
+        .mobile-nav {
+          display: flex;
+        }
+
+        .logo {
+          margin-left: 60px;
+        }
+
+        .schedule-item, .upcoming-schedule-item {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 16px;
+        }
+
+        .schedule-time {
+          min-width: unset;
+          margin-bottom: 8px;
+        }
+
+        .schedule-marker {
+          margin: 0 0 8px 0;
+        }
+
+        .schedule-content {
+          margin-bottom: 12px;
+        }
+
+        .schedule-actions {
+          margin-left: 0;
+          width: 100%;
+          justify-content: flex-end;
+        }
+
+        .schedule-actions button,
+        .schedule-actions a {
+          flex: 1;
+          text-align: center;
+        }
+
+        .expired-notice {
+          top: 10px;
+          right: 10px;
+        }
+      }
+
+      @media (min-width: 769px) {
+        .mobile-nav {
+          display: none;
+        }
+
+        .sidebar {
+          transform: translateX(0);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .navbar {
+          padding: 0 16px;
+        }
+
+        .logo {
+          font-size: 1rem;
+          margin-left: 50px;
+        }
+
+        .theme-toggle {
+          width: 36px;
+          height: 36px;
+          font-size: 1rem;
+        }
+
+        .profile-img, .logo-img {
+          width: 28px;
+          height: 28px;
+        }
+
+        .schedule, .upcoming-schedule {
+          padding: 16px;
+        }
+
+        .dashboard-grid {
+          padding: 16px 0;
+        }
+
+        .card {
+          padding: 16px;
+        }
+      }
+
+      .study-partners-section {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 24px;
+  box-shadow: 0 4px 6px var(--shadow);
+}
+
+.study-partner-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: var(--input-bg);
+}
+
+.study-partner-content {
+  flex: 1;
+}
+
+.study-partner-actions {
+  margin-left: auto;
+}
+
+.connect-btn {
+  padding: 4px 12px;
+  border-radius: 4px;
+  background: var(--button-bg);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.connect-btn:hover {
+  background: var(--button-hover-bg);
+}
+
+@media (max-width: 768px) {
+  .study-partner-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .study-partner-actions {
+    margin-left: 0;
+    width: 100%;
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .connect-btn {
+    flex: 1;
+    text-align: center;
+  }
+}
+    </style>
+  </head>
+  <body data-theme="light">
+    <button class="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- <nav class="navbar">
+      <div class="logo">BrainBloom</div>
+      <img src="{% static 'img/logo.jpg' %}" alt="Profile" class="logo-img" />
+      <div class="nav-controls">
+        <button class="theme-toggle" aria-label="Toggle theme">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </nav> -->
+    <nav class="navbar">
+      <div class="logo-container">
+        <img src="{% static 'img/logo.jpg' %}" alt="Logo" class="logo-img" />
+        <div class="logo">Brain Bloom</div>
+      </div>
+      <div class="nav-controls">
+        <a href="{% url 'home' %}" class="home-btn" aria-label="Home">
+          <i class="fas fa-home"></i>
+        </a>
+        <button class="theme-toggle" aria-label="Toggle theme">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </nav>
+    <aside class="sidebar">
+      <div class="sidebar-profile">
+        {% if user.profile_picture %}
+          <img src="{{ user.profile_picture.url }}" alt="User" class="profile-img" />
+        {% else %}
+          <img src="{% static 'img/avatar.png' %}" alt="User" class="profile-img" />
+        {% endif %}
+        <div>
+          <h3 style="font-weight: 500; text-align: center">{{ user.name }}</h3>
+          <div style="font-size: 0.875rem; color: var(--text-primary); text-align: center">Student</div>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="#" class="nav-link" id="createRoomBtn">
+          <i class="fa-solid fa-circle-plus"></i> Create Room
+        </a>
+        <a href="#" class="nav-link" id="joinRoomBtn">
+          <i class="fa-brands fa-android"></i> Join Private Rooms
+        </a>
+        <a href="{% url 'public_rooms' %}" class="nav-link">
+          <i class="fa-solid fa-door-open"></i> Join Public Rooms
+        </a>
+        <a href="{% url 'room_dashboard' %}" class="nav-link">
+          <i class="fa-solid fa-business-time"></i> My rooms
+        </a>
+      
+        <a href="#" class="nav-link" id="notesUploadBtn">
+          <i class="fas fa-upload"></i> Notes Upload
+        </a>
+        <a href="{% url 'profile_settings' %}" class="nav-link">
+          <i class="fa-solid fa-id-card-clip"></i> Profile Setting
+        </a>
+        <a href="{% url 'login' %}" class="nav-link" onclick="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="message {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <div class="schedule">
+        <h3 style="margin-bottom: 16px; font-weight: 700">Today's Schedule</h3>
+        {% if todays_rooms %}
+          {% for room in todays_rooms %}
+            {% with room_datetime=room.date|date:'Y-m-d'|add:room.time|date:'U' %}
+              {% with current_datetime=timezone.now|date:'U' %}
+                <div class="schedule-item {% if room_datetime < current_datetime %}expired{% endif %}" data-room-id="{{ room.id }}">
+                  {% if room_datetime < current_datetime %}
+                    <span class="expired-notice">Expired</span>
+                  {% endif %}
+                  <div class="schedule-time">{{ room.time }}</div>
+                  <div class="schedule-marker"></div>
+                  <div class="schedule-content">
+                    <div style="font-weight: 500">
+                      {{ room.title }}
+                      <span class="tag {{ room.visibility }}">{{ room.visibility|title }}</span>
+                    </div>
+                    <div style="font-size: 0.875rem; color: var(--text-primary)">{{ room.department }}</div>
+                    {% if room.visibility == 'private' and room.creator == user %}
+                      <div class="room-code">Room Code: {{ room.code }}</div>
+                    {% endif %}
+                  </div>
+                  <div class="schedule-actions">
+                    {% if room.is_accessible %}
+                      <a href="{% url 'group_chat' room.id %}" class="join-btn">Join Now</a>
+                    {% endif %}
+                    {% if room.creator == user %}
+                      <form action="{% url 'delete_room' room.id %}" method="post" style="display: inline">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-btn" {% if room_datetime < current_datetime %}disabled{% endif %}>Delete</button>
+                      </form>
+                    {% endif %}
+                    {% if room.visibility == 'public' and user not in room.participants.all and room.creator != user %}
+                      <form action="{% url 'join_public_room' room.id %}" method="post" style="display: inline">
+                        {% csrf_token %}
+                        <button type="submit" class="join-btn" {% if room_datetime < current_datetime %}disabled{% endif %}>Join</button>
+                      </form>
+                    {% elif room.visibility == 'private' and user not in room.participants.all and room.creator != user %}
+                      <a href="{% url 'private_room' room.id %}" class="join-btn {% if room_datetime < current_datetime %}disabled{% endif %}" {% if room_datetime < current_datetime %}onclick="return false;"{% endif %}>Join (Code Required)</a>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endwith %}
+            {% endwith %}
+          {% endfor %}
+        {% else %}
+          <p>No scheduled rooms for today.</p>
+        {% endif %}
+      </div>
+      
+      <div class="upcoming-schedule">
+        <h3 style="margin-bottom: 16px; font-weight: 700">Upcoming Schedule</h3>
+        {% if upcoming_rooms %}
+          {% for room in upcoming_rooms %}
+            {% with room_datetime=room.date|date:'Y-m-d'|add:room.time|date:'U' %}
+              {% with current_datetime=timezone.now|date:'U' %}
+                <div class="upcoming-schedule-item {% if room_datetime < current_datetime %}expired{% endif %}" data-room-id="{{ room.id }}">
+                  {% if room_datetime < current_datetime %}
+                    <span class="expired-notice">Expired</span>
+                  {% endif %}
+                  <div class="schedule-time">{{ room.time }}</div>
+                  <div class="schedule-marker"></div>
+                  <div class="schedule-content">
+                    <div style="font-weight: 500">
+                      {{ room.title }}
+                      <span class="tag {{ room.visibility }}">{{ room.visibility|title }}</span>
+                    </div>
+                    <div style="font-size: 0.875rem; color: var(--text-primary)">{{ room.department }} - {{ room.date|date:'m/d/Y' }}</div>
+                    {% if room.visibility == 'private' and room.creator == user %}
+                      <div class="room-code">Room Code: {{ room.code }}</div>
+                    {% endif %}
+                  </div>
+                  <div class="schedule-actions">
+                    {% if room.is_accessible %}
+                      <a href="{% url 'group_chat' room.id %}" class="join-btn">Join Now</a>
+                    {% endif %}
+                    {% if room.creator == user %}
+                      <form action="{% url 'delete_room' room.id %}" method="post" style="display: inline">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-btn" {% if room_datetime < current_datetime %}disabled{% endif %}>Delete</button>
+                      </form>
+                    {% endif %}
+                    {% if room.visibility == 'public' and user not in room.participants.all and room.creator != user %}
+                      <form action="{% url 'join_public_room' room.id %}" method="post" style="display: inline">
+                        {% csrf_token %}
+                        <button type="submit" class="join-btn" {% if room_datetime < current_datetime %}disabled{% endif %}>Join</button>
+                      </form>
+                    {% elif room.visibility == 'private' and user not in room.participants.all and room.creator != user %}
+                      <a href="{% url 'private_room' room.id %}" class="join-btn {% if room_datetime < current_datetime %}disabled{% endif %}" {% if room_datetime < current_datetime %}onclick="return false;"{% endif %}>Join (Code Required)</a>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endwith %}
+            {% endwith %}
+          {% endfor %}
+        {% else %}
+          <p>No upcoming rooms scheduled.</p>
+        {% endif %}
+      </div>
+
+      <div class="pending-requests-section">
+        <h3 style="margin-bottom: 16px; font-weight: 700">Pending Study Partner Requests</h3>
+        {% if pending_requests %}
+          {% for request in pending_requests %}
+          <div class="pending-request-item" data-request-id="{{ request.id }}">
+            <div class="pending-request-content">
+              <div style="font-weight: 500">
+                {% if request.sender %}
+                  {{ request.sender.name }}
+                  <span class="tag" style="background-color: var(--button-bg); color: white;">{{ request.sender.department|default:"N/A" }}</span>
+                {% else %}
+                  Unknown Sender
+                {% endif %}
+              </div>
+              <div style="font-size: 0.875rem; color: var(--text-primary)">
+                {% if request.sender %}
+                  Semester: {{ request.sender.semester|default:"Not specified" }}
+                {% else %}
+                  Semester: Not specified
+                {% endif %}
+              </div>
+            </div>
+            <div class="pending-request-actions">
+              <button class="accept-btn" data-request-id="{{ request.id }}">Accept</button>
+              <button class="reject-btn" data-request-id="{{ request.id }}">Reject</button>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p>No pending study partner requests.</p>
+        {% endif %}
+      </div>
+
+      <div class="added-partners-section">
+        <h3 style="margin-bottom: 16px; font-weight: 700">Added Study Partners</h3>
+        {% if accepted_partners %}
+            <div class="added-partners-list">
+                {% for partner in accepted_partners %}
+                    <div class="added-partner-item" style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <!-- Partner Image -->
+                        <div style="margin-right: 12px;">
+                            {% if partner.sender == user %}
+                                {% if partner.receiver.profile_picture %}
+                                    <img src="{{ partner.receiver.profile_picture.url }}" alt="{{ partner.receiver.name }}'s profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                {% else %}
+                                    <img src="/static/images/default_profile.png" alt="Default profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                {% endif %}
+                            {% else %}
+                                {% if partner.sender.profile_picture %}
+                                    <img src="{{ partner.sender.profile_picture.url }}" alt="{{ partner.sender.name }}'s profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                {% else %}
+                                    <img src="/static/images/default_profile.png" alt="Default profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <!-- Partner Details -->
+                        <div class="added-partner-content">
+                            <div style="font-weight: 500">
+                                {% if partner.sender == user %}
+                                    {{ partner.receiver.name }}
+                                    <span class="tag" style="background-color: var(--button-bg); color: white;">{{ partner.receiver.department|default:"N/A" }}</span>
+                                {% else %}
+                                    {{ partner.sender.name }}
+                                    <span class="tag" style="background-color: var(--button-bg); color: white;">{{ partner.sender.department|default:"N/A" }}</span>
+                                {% endif %}
+                            </div>
+                            <div style="font-size: 0.875rem; color: var(--text-primary)">
+                                {% if partner.sender == user %}
+                                    Semester: {{ partner.receiver.semester|default:"Not specified" }}
+                                {% else %}
+                                    Semester: {{ partner.sender.semester|default:"Not specified" }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No added study partners yet.</p>
+        {% endif %}
+    </div>
+      <div class="study-partners-section">
+        <h3 style="margin-bottom: 16px; font-weight: 700">Recommended Study Partners</h3>
+        {% if study_partner_recommendations %}
+          {% for recommendation in study_partner_recommendations %}
+          {% if recommendation.user and recommendation.user.id %}
+            <div class="study-partner-item">
+              <div class="study-partner-profile">
+                {% if recommendation.user.profile_picture %}
+                  <img src="{{ recommendation.user.profile_picture.url }}" alt="{{ recommendation.user.name }}" class="profile-img" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 12px;" />
+                {% else %}
+                  <img src="{% static 'img/avatar.png' %}" alt="{{ recommendation.user.name }}" class="profile-img" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 12px;" />
+                {% endif %}
+              </div>
+              <div class="study-partner-content">
+                <div style="font-weight: 500">
+                  {{ recommendation.user.name }}
+                  <span class="tag" style="background-color: var(--button-bg); color: white;">{{ recommendation.user.department|default:"N/A" }}</span>
+                </div>
+                <div style="font-size: 0.875rem; color: var(--text-primary)">
+                  Semester: {{ recommendation.user.semester|default:"Not specified" }}
+                </div>
+                <div style="font-size: 0.875rem; color: var(--text-primary)">
+                  Match Score: {{ recommendation.match_score }}
+                </div>
+                <div style="font-size: 0.875rem; color: var(--text-primary)">
+                  Shared Attributes:
+                  {% if recommendation.shared_attributes.department %}
+                    Department: {{ recommendation.shared_attributes.department }}
+                  {% endif %}
+                  {% if recommendation.shared_attributes.semester %}
+                    {% if recommendation.shared_attributes.department %}, {% endif %}
+                    Semester: {{ recommendation.shared_attributes.semester }}
+                  {% endif %}
+                  {% if recommendation.shared_attributes.shared_room %}
+                    {% if recommendation.shared_attributes.department or recommendation.shared_attributes.semester %}, {% endif %}
+                    In the same room
+                  {% endif %}
+                </div>
+              </div>
+              <div class="study-partner-actions">
+                <button class="connect-btn" data-user-id="{{ recommendation.user.id }}">Connect</button>
+              </div>
+            </div>
+          {% endif %}
+          {% endfor %}
+        {% else %}
+          <p>No study partner recommendations available. Update your profile or join more rooms to improve recommendations!</p>
+        {% endif %}
+      </div>
+    
+     <div class="review-section">
+      <h3 >
+          <i class="fas fa-comment-alt" style="color: #3498db;"></i>
+          Write a Review
+      </h3>
+      
+      <form method="post" style="max-width: 600px; margin: 0 auto; width: 90%;">
+          {% csrf_token %}
+          <input type="hidden" name="submit_review">
+          
+          <div style="margin-bottom: 1.2rem;">
+              <label style="display: block; margin-bottom: 0.5rem; color: #34495e; font-weight: 500;">Rating:</label>
+              {{ review_form.rating }}
+          </div>
+  
+          <div style="margin-bottom: 1.2rem;">
+              <label style="display: block; margin-bottom: 0.5rem; color: #34495e; font-weight: 500;">Your Review:</label>
+              {{ review_form.text }}
+          </div>
+  
+          <button type="submit" 
+                  style="background: #3498db; color: white; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; 
+                         cursor: pointer; transition: all 0.3s ease; width: 100%;">
+              <i class="fas fa-paper-plane"></i>
+              Submit Review
+          </button>
+      </form>
+
+  <!-- Add this CSS either in your main CSS file or in a style tag -->
+ 
+</div>
+
+<!-- Add this section to show user's previous reviews -->
+<div class="your-reviews">
+  <h4 style="color: #2c3e50; margin-bottom: 1rem;">Your Previous Reviews</h4>
+  {% for review in user.review_set.all %}
+  <div class="review-item">
+      <div class="review-rating">
+          {% for _ in "x"|ljust:review.rating %}
+          <i class="fas fa-star"></i>
+          {% endfor %}
+      </div>
+      <p style="color: #34495e; margin-bottom: 0.5rem;">{{ review.text }}</p>
+      <small style="color: #7f8c8d;">Posted on {{ review.created_at|date:"M d, Y" }}</small>
+  </div>
+  {% empty %}
+  <p style="color: #7f8c8d;">No reviews submitted yet</p>
+  {% endfor %}
+</div>
+      <div class="notes-section">
+        <button id="toggleNotesBtn" class="toggle-notes-btn">
+          <i class="fas fa-book"></i> Show Shared Notes
+        </button>
+        <div id="notesContainer" style="display: none;">
+          <h3 style="margin-bottom: 16px; font-weight: 700">Shared Notes</h3>
+          <div class="filter-bar">
+            <select id="deptFilter" class="filter-select">
+              <option value="">All Departments</option>
+            </select>
+            <select id="courseFilter" class="filter-select">
+              <option value="">All Courses</option>
+            </select>
+            <select id="topicFilter" class="filter-select">
+              <option value="">All Topics</option>
+            </select>
+          </div>
+          <div id="notesList">
+            {% for note in notes %}
+              <div class="note-item" data-note-id="{{ note.id }}">
+                <div class="note-content">
+                  <h4>{{ note.title }}</h4>
+                  <p>Department: {{ note.department }} | Course: {{ note.course }} | Topic: {{ note.topic }}</p>
+                  <p>Uploaded by: {{ note.uploader.name }} on {{ note.uploaded_at|date:'m/d/Y H:i' }}</p>
+                  <p>Downloads: <span class="download-count">{{ note.download_count }}</span></p>
+                  <div class="note-actions">
+                    <a href="{% url 'download_note' note.id %}" class="download-btn">Download</a>
+                    <button class="review-btn">Add Review</button>
+                  </div>
+                </div>
+                <div class="reviews">
+                  <h5>Reviews:</h5>
+                  {% for review in note.reviews.all %}
+                    <div class="review-item">
+                      <p>{{ review.comment }}</p>
+                      <p>Rating: {{ review.rating }}/5</p>
+                      <p>By: {{ review.reviewer.name }} on {{ review.created_at|date:'m/d/Y' }}</p>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% empty %}
+              <p>No notes available.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <!-- Notes Upload Modal -->
+      <div id="notesUploadModal" class="modal">
+        <div class="modal-content">
+          <span class="close-btn">×</span>
+          <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center;">Upload Notes</h2>
+          <form id="notesUploadForm" action="{% url 'upload_note' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="noteTitle">Title</label>
+              <input type="text" id="noteTitle" name="title" required />
+            </div>
+            <div class="form-group">
+              <label for="noteDepartment">Department</label>
+              <select id="noteDepartment" name="department" required>
+                <option value="">Select Department</option>
+                <option value="Architecture">Architecture</option>
+                <option value="CEE">Civil & Environmental Engineering (CEE)</option>
+                <option value="CSE">Computer Science & Engineering (CSE)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="noteCourse">Course</label>
+              <select id="noteCourse" name="course" required>
+                <option selected disabled>Select Department First</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="noteTopic">Topic</label>
+              <select id="noteTopic" name="topic" required>
+                <option selected disabled>Select Course First</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="noteFile">PDF File</label>
+              <input type="file" id="noteFile" name="file" accept=".pdf" required />
+            </div>
+            <button type="submit" style="width: 100%; padding: 0.75rem; background: var(--button-bg); color: white; border: none; border-radius: 0.5rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Upload Note</button>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Review Modal -->
+      <div id="reviewModal" class="modal">
+        <div class="modal-content">
+          <span class="close-btn">×</span>
+          <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center;">Add Review</h2>
+          <form id="reviewForm" action="{% url 'add_review' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="note_id" id="reviewNoteId">
+            <div class="form-group">
+              <label for="comment">Comment</label>
+              <textarea id="comment" name="comment" required></textarea>
+            </div>
+            <div class="form-group">
+              <label for="rating">Rating</label>
+              <select id="rating" name="rating" required>
+                <option value="">Select Rating</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+            <button type="submit" style="width: 100%; padding: 0.75rem; background: var(--button-bg); color: white; border: none; border-radius: 0.5rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Submit Review</button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <!-- Create Room Modal -->
+    <div id="createRoomModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn">×</span>
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center;">Create Study Room</h2>
+        <form id="createRoomForm" action="{% url 'create_room' %}" method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="department">Department</label>
+            <select id="department" name="department" required>
+              <option value="">Select Department</option>
+              <option value="Architecture">Architecture</option>
+              <option value="CEE">Civil & Environmental Engineering (CEE)</option>
+              <option value="CSE">Computer Science & Engineering (CSE)</option>
+              <option value="EEE">Electrical & Electronic Engineering (EEE)</option>
+              <option value="ETE">Electronic & Telecom Engineering (ETE)</option>
+              <option value="Biochemistry">Biochemistry and Biotechnology</option>
+              <option value="ESM">Environmental Science & Management</option>
+              <option value="Microbiology">Microbiology</option>
+              <option value="BPharm">BPharm Professional</option>
+              <option value="BBA">BBA</option>
+              <option value="English">English</option>
+              <option value="Law">Laws (LLB Hons)</option>
+              <option value="MAJ">Media and Journalism (MAJ)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="course">Course</label>
+            <select id="course" name="course" required>
+              <option selected disabled>Select Department First</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="topic">Topic Title</label>
+            <select id="topic" name="topic" required>
+              <option selected disabled>Select Course First</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" required />
+          </div>
+          <div class="form-group">
+            <label for="time">Time</label>
+            <input type="time" id="time" name="time" required />
+          </div>
+          <div class="form-group">
+            <label>Room Visibility</label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="visibility" value="public" checked />
+                <span>Public (Anyone can join)</span>
+              </label>
+              <label>
+                <input type="radio" name="visibility" value="private" />
+                <span>Private (Invite only)</span>
+              </label>
+            </div>
+          </div>
+          <button type="submit" style="width: 100%; padding: 0.75rem; background: var(--button-bg); color: white; border: none; border-radius: 0.5rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Create Room</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Join Room Modal -->
+    <div id="joinRoomModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn">×</span>
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center;">Join a Room</h2>
+        <form id="joinRoomForm" action="{% url 'join_room_base' %}" method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="roomCode">Enter Room Code (for private rooms)</label>
+            <input type="text" id="roomCode" name="code" placeholder="e.g., 123456" />
+          </div>
+          <button type="submit" style="width: 100%; padding: 0.75rem; background: var(--button-bg); color: white; border: none; border-radius: 0.5rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Join Room</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      function getCsrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+      }
+
+      // Handle accepting and rejecting study partner requests
+      document.querySelectorAll('.accept-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const requestId = this.getAttribute('data-request-id');
+        console.log('Accept button clicked, requestId:', requestId); // Debug log
+        if (!requestId) {
+            console.error('No request ID found on button');
+            alert('Error: Request ID is missing.');
+            return;
+        }
+
+        this.disabled = true;
+        this.textContent = 'Processing...';
+
+        // Parse requestId as an integer
+        const parsedRequestId = parseInt(requestId, 10);
+        if (isNaN(parsedRequestId)) {
+            console.error('Invalid request ID:', requestId);
+            alert('Error: Invalid request ID.');
+            this.disabled = false;
+            this.textContent = 'Accept';
+            return;
+        }
+
+        const fetchOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken(),
+            },
+            body: JSON.stringify({ request_id: parsedRequestId }),
+            credentials: 'include' // Ensure cookies are sent
+        };
+        console.log('Sending fetch request with options:', fetchOptions); // Debug log
+
+        fetch('/accept-study-partner-request/', fetchOptions)
+        .then(response => {
+            console.log('Fetch response status:', response.status); // Debug log
+            console.log('Fetch response headers:', response.headers); // Debug log
+            return response.json();
+        })
+        .then(data => {
+            console.log('Fetch response data:', data); // Debug log
+            if (data.success) {
+                // Remove the request item from the DOM
+                const requestItem = document.querySelector(`.pending-request-item[data-request-id="${requestId}"]`);
+                if (requestItem) {
+                    // Use the partner details from the response
+                    const partner = data.partner;
+                    const partnerName = partner.name;
+                    const partnerDepartment = partner.department;
+                    const partnerSemester = partner.semester;
+                    const profilePictureUrl = partner.profile_picture_url || '/static/images/default_profile.png';
+
+                    // Remove the pending request
+                    requestItem.remove();
+
+                    // Check if there are any remaining requests
+                    const remainingRequests = document.querySelectorAll('.pending-request-item');
+                    if (remainingRequests.length === 0) {
+                        const section = document.querySelector('.pending-requests-section');
+                        section.innerHTML = '<h3 style="margin-bottom: 16px; font-weight: 700">Pending Study Partner Requests</h3><p>No pending study partner requests.</p>';
+                    }
+
+                    // Update the Added Study Partners section
+                    const addedPartnersSection = document.querySelector('.added-partners-section');
+                    let addedPartnersList = addedPartnersSection.querySelector('.added-partners-list');
+                    if (!addedPartnersList) {
+                        // If the list doesn't exist (e.g., "No added study partners yet" is shown), create it
+                        addedPartnersSection.innerHTML = `
+                            <h3 style="margin-bottom: 16px; font-weight: 700">Added Study Partners</h3>
+                            <div class="added-partners-list"></div>
+                        `;
+                        addedPartnersList = addedPartnersSection.querySelector('.added-partners-list');
+                    }
+
+                    // Add the new partner to the list with their profile picture
+                    const newPartnerItem = document.createElement('div');
+                    newPartnerItem.className = 'added-partner-item';
+                    newPartnerItem.style.display = 'flex';
+                    newPartnerItem.style.alignItems = 'center';
+                    newPartnerItem.style.marginBottom = '16px';
+                    newPartnerItem.innerHTML = `
+                        <div style="margin-right: 12px;">
+                            <img src="${profilePictureUrl}" alt="${partnerName}'s profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                        </div>
+                        <div class="added-partner-content">
+                            <div style="font-weight: 500">
+                                ${partnerName}
+                                <span class="tag" style="background-color: var(--button-bg); color: white;">${partnerDepartment}</span>
+                            </div>
+                            <div style="font-size: 0.875rem; color: var(--text-primary)">
+                                Semester: ${partnerSemester}
+                            </div>
+                        </div>
+                    `;
+                    addedPartnersList.appendChild(newPartnerItem);
+
+                    alert(data.message);
+                } else {
+                    // Fallback: Refresh the page if the request item is not found
+                    alert(data.message + ' Refreshing the page to update the list.');
+                    window.location.reload();
+                }
+            } else {
+                alert(data.message || 'Error accepting the request');
+                this.disabled = false;
+                this.textContent = 'Accept';
+            }
+        })
+        .catch(error => {
+            console.error('Error accepting request:', error);
+            alert('An error occurred while accepting the request');
+            this.disabled = false;
+            this.textContent = 'Accept';
+        });
+    });
+});
+document.querySelectorAll('.reject-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const requestId = this.getAttribute('data-request-id');
+        console.log('Reject button clicked, requestId:', requestId); // Debug log
+        if (!requestId) {
+            console.error('No request ID found on button');
+            alert('Error: Request ID is missing.');
+            return;
+        }
+
+        this.disabled = true;
+        this.textContent = 'Processing...';
+
+        // Parse requestId as an integer
+        const parsedRequestId = parseInt(requestId, 10);
+        if (isNaN(parsedRequestId)) {
+            console.error('Invalid request ID:', requestId);
+            alert('Error: Invalid request ID.');
+            this.disabled = false;
+            this.textContent = 'Reject';
+            return;
+        }
+
+        const fetchOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken(),
+            },
+            body: JSON.stringify({ request_id: parsedRequestId }),
+            credentials: 'include' // Ensure cookies are sent
+        };
+        console.log('Sending fetch request with options:', fetchOptions); // Debug log
+
+        fetch('/reject-study-partner-request/', fetchOptions)
+        .then(response => {
+            console.log('Fetch response status:', response.status); // Debug log
+            console.log('Fetch response headers:', response.headers); // Debug log
+            return response.json();
+        })
+        .then(data => {
+            console.log('Fetch response data:', data); // Debug log
+            if (data.success) {
+                // Remove the request item from the DOM
+                const requestItem = document.querySelector(`.pending-request-item[data-request-id="${requestId}"]`);
+                if (requestItem) {
+                    requestItem.remove();
+                    // Check if there are any remaining requests
+                    const remainingRequests = document.querySelectorAll('.pending-request-item');
+                    if (remainingRequests.length === 0) {
+                        const section = document.querySelector('.pending-requests-section');
+                        section.innerHTML = '<h3 style="margin-bottom: 16px; font-weight: 700">Pending Study Partner Requests</h3><p>No pending study partner requests.</p>';
+                    }
+                    alert(data.message);
+                } else {
+                    // Fallback: Refresh the page if the request item is not found
+                    alert(data.message + ' Refreshing the page to update the list.');
+                    window.location.reload();
+                }
+            } else {
+                alert(data.message || 'Error rejecting the request');
+                this.disabled = false;
+                this.textContent = 'Reject';
+            }
+        })
+        .catch(error => {
+            console.error('Error rejecting request:', error);
+            alert('An error occurred while rejecting the request');
+            this.disabled = false;
+            this.textContent = 'Reject';
+        });
+    });
+});
+      // Handle sending study partner requests
+      document.querySelectorAll('.connect-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const userId = this.dataset.userId;
+          if (!userId || userId.trim() === '') {
+            console.error('No userId found for this button');
+            alert('Error: Unable to send request. User ID is missing.');
+            this.disabled = false;
+            this.textContent = 'Connect';
+            return;
+          }
+
+          const button = this;
+          button.disabled = true;
+          button.textContent = 'Sending...';
+
+          const formData = new FormData();
+          formData.append('receiver_id', userId);
+
+          fetch("{% url 'send_study_partner_request' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-CSRFToken': getCsrfToken(),
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              button.textContent = 'Request Sent';
+              button.style.background = '#6c757d';
+              alert(data.message);
+            } else {
+              button.disabled = false;
+              button.textContent = 'Connect';
+              alert(data.message || 'Error sending request');
+            }
+          })
+          .catch(error => {
+            console.error('Error sending study partner request:', error);
+            button.disabled = false;
+            button.textContent = 'Connect';
+            alert('Error sending request: ' + error.message);
+          });
+        });
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Theme Toggle
+        const themeToggle = document.querySelectorAll(".theme-toggle");
+        const body = document.body;
+    
+        themeToggle.forEach(toggle => {
+          const icon = toggle.querySelector("i");
+          const savedTheme = localStorage.getItem("theme") || "light";
+          body.setAttribute("data-theme", savedTheme);
+          icon.className = savedTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+    
+          toggle.addEventListener("click", () => {
+            const currentTheme = body.getAttribute("data-theme");
+            const newTheme = currentTheme === "light" ? "dark" : "light";
+            body.setAttribute("data-theme", newTheme);
+            themeToggle.forEach(t => {
+              t.querySelector("i").className = newTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+            });
+            localStorage.setItem("theme", newTheme);
+          });
+        });
+    
+        // Sidebar Toggle for Mobile
+        const menuToggle = document.querySelector(".menu-toggle");
+        const sidebar = document.querySelector(".sidebar");
+        const mainContent = document.querySelector(".main-content");
+    
+        menuToggle.addEventListener("click", () => {
+          sidebar.classList.toggle("active");
+          mainContent.classList.toggle("expanded");
+          const icon = menuToggle.querySelector("i");
+          icon.className = sidebar.classList.contains("active") ? "fas fa-times" : "fas fa-bars";
+          document.body.style.overflow = sidebar.classList.contains("active") ? "hidden" : "auto";
+        });
+    
+        window.addEventListener("resize", () => {
+          if (window.innerWidth > 768) {
+            sidebar.classList.remove("active");
+            mainContent.classList.remove("expanded");
+            document.body.style.overflow = "auto";
+          }
+        });
+    
+        // Create Room Modal
+        const createRoomModal = document.getElementById("createRoomModal");
+        const createRoomButtons = document.querySelectorAll("#createRoomBtn");
+        const closeCreateBtn = createRoomModal.querySelector(".close-btn");
+        const createRoomForm = document.getElementById("createRoomForm");
+    
+        createRoomButtons.forEach((button) => {
+          button.addEventListener("click", (e) => {
+            e.preventDefault();
+            createRoomModal.style.display = "block";
+          });
+        });
+    
+        closeCreateBtn.addEventListener("click", () => {
+          createRoomModal.style.display = "none";
+        });
+    
+        window.addEventListener("click", (e) => {
+          if (e.target === createRoomModal) {
+            createRoomModal.style.display = "none";
+          }
+        });
+    
+        createRoomForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          const submitButton = this.querySelector('button[type="submit"]');
+          submitButton.disabled = true;
+          submitButton.textContent = 'Creating...';
+    
+          fetch(this.action, {
+            method: 'POST',
+            body: new FormData(this),
+            headers: {
+              'X-CSRFToken': this.querySelector('[name="csrfmiddlewaretoken"]').value,
+              'X-Requested-With': 'XMLHttpRequest',
+            },
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.success) {
+              createRoomModal.style.display = "none";
+              window.location.href = "{% url 'dashboard' %}";
+            } else {
+              alert(data.message || "Error creating room");
+              submitButton.disabled = false;
+              submitButton.textContent = 'Create Room';
+            }
+          })
+          .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred while creating the room: " + error.message);
+            submitButton.disabled = false;
+            submitButton.textContent = 'Create Room';
+          });
+        });
+    
+        // Join Room Modal
+        const joinRoomModal = document.getElementById("joinRoomModal");
+        const joinRoomButtons = document.querySelectorAll("#joinRoomBtn, #joinRoomBtnMobile");
+        const closeJoinBtn = joinRoomModal.querySelector(".close-btn");
+    
+        joinRoomButtons.forEach((button) => {
+          button.addEventListener("click", (e) => {
+            e.preventDefault();
+            joinRoomModal.style.display = "block";
+          });
+        });
+    
+        closeJoinBtn.addEventListener("click", () => {
+          joinRoomModal.style.display = "none";
+        });
+    
+        window.addEventListener("click", (e) => {
+          if (e.target === joinRoomModal) {
+            joinRoomModal.style.display = "none";
+          }
+        });
+    
+        // Notes Upload Modal
+        const notesUploadModal = document.getElementById("notesUploadModal");
+        const notesUploadBtn = document.getElementById("notesUploadBtn");
+        const closeNotesBtn = notesUploadModal.querySelector(".close-btn");
+    
+        notesUploadBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          notesUploadModal.style.display = "block";
+        });
+    
+        closeNotesBtn.addEventListener("click", () => {
+          notesUploadModal.style.display = "none";
+        });
+    
+        window.addEventListener("click", (e) => {
+          if (e.target === notesUploadModal) {
+            notesUploadModal.style.display = "none";
+          }
+        });
+    
+        // Review Modal
+        const reviewModal = document.getElementById("reviewModal");
+        const reviewBtns = document.querySelectorAll(".review-btn");
+        const closeReviewBtn = reviewModal.querySelector(".close-btn");
+    
+        reviewBtns.forEach(btn => {
+          btn.addEventListener("click", () => {
+            const noteId = btn.closest('.note-item').dataset.noteId;
+            document.getElementById("reviewNoteId").value = noteId;
+            reviewModal.style.display = "block";
+          });
+        });
+    
+        closeReviewBtn.addEventListener("click", () => {
+          reviewModal.style.display = "none";
+        });
+    
+        window.addEventListener("click", (e) => {
+          if (e.target === reviewModal) {
+            reviewModal.style.display = "none";
+          }
+        });
+    
+        // Toggle Notes Section
+        const toggleNotesBtn = document.getElementById("toggleNotesBtn");
+        const notesContainer = document.getElementById("notesContainer");
+    
+        if (toggleNotesBtn && notesContainer) {
+          toggleNotesBtn.addEventListener("click", () => {
+            console.log("Toggle button clicked");
+            const isHidden = notesContainer.style.display === "none" || notesContainer.style.display === "";
+            if (isHidden) {
+              console.log("Showing notes container");
+              notesContainer.style.display = "block";
+              toggleNotesBtn.innerHTML = '<i class="fas fa-book"></i> Hide Shared Notes';
+              if (deptFilter.value || courseFilter.value || topicFilter.value) {
+                try {
+                  filterNotes();
+                } catch (error) {
+                  console.error("Error in filterNotes during toggle:", error);
+                }
+              }
+            } else {
+              console.log("Hiding notes container");
+              notesContainer.style.display = "none";
+              toggleNotesBtn.innerHTML = '<i class="fas fa-book"></i> Show Shared Notes';
+            }
+          });
+        } else {
+          console.error("Toggle button or notes container not found in DOM");
+        }
+    
+        // Department, Course, and Topic Data
+        const coursesByDepartment = {
+          'Architecture': ['Architectural Design', 'Building Construction', 'Urban Planning'],
+          'CEE': ['Structural Analysis', 'Environmental Engineering', 'Transportation Engineering'],
+          'CSE': ['Data Structures', 'Algorithms', 'Database Systems'],
+          'EEE': ['Circuit Analysis', 'Power Systems', 'Microprocessors'],
+          'ETE': ['Wireless Communication', 'Signal Processing', 'Network Security'],
+          'Biochemistry': ['Genetic Engineering', 'Molecular Biology', 'Enzymology'],
+          'ESM': ['Climate Change', 'Sustainability Science', 'Environmental Policy'],
+          'Microbiology': ['Virology', 'Immunology', 'Bacteriology'],
+          'BPharm': ['Pharmaceutical Chemistry', 'Pharmacology', 'Pharmaceutics'],
+          'BBA': ['Marketing Management', 'Financial Accounting', 'Human Resource Management'],
+          'English': ['Literary Theory', 'Linguistics', 'Creative Writing'],
+          'Law': ['Constitutional Law', 'Criminal Law', 'International Law'],
+          'MAJ': ['Media Ethics', 'Broadcast Journalism', 'Advertising'],
+        };
+    
+        const topicsByCourse = {
+          'Architectural Design': ['Sustainable Design', 'Interior Architecture', 'Landscape Architecture'],
+          'Building Construction': ['Construction Materials', 'Structural Systems', 'Construction Management'],
+          'Urban Planning': ['City Planning', 'Urban Design', 'Transportation Planning'],
+          'Structural Analysis': ['Finite Element Analysis', 'Structural Dynamics', 'Bridge Design'],
+          'Environmental Engineering': ['Water Treatment', 'Waste Management', 'Air Quality Control'],
+          'Transportation Engineering': ['Traffic Engineering', 'Pavement Design', 'Transport Modeling'],
+          'Data Structures': ['Arrays and Linked Lists', 'Trees and Graphs', 'Hash Tables'],
+          'Algorithms': ['Sorting Algorithms', 'Graph Algorithms', 'Dynamic Programming'],
+          'Database Systems': ['Database Management', 'SQL Queries', 'NoSQL Databases'],
+          'Circuit Analysis': ['AC/DC Circuits', 'Network Theorems', 'Transient Analysis'],
+          'Power Systems': ['Power Generation', 'Transmission Lines', 'Power Distribution'],
+          'Microprocessors': ['Microprocessor Architecture', 'Assembly Language', 'Interfacing Techniques'],
+          'Wireless Communication': ['Mobile Networks', 'Wireless Protocols', 'Antenna Design'],
+          'Signal Processing': ['Digital Signal Processing', 'Fourier Transforms', 'Filter Design'],
+          'Network Security': ['Cryptography', 'Firewall Systems', 'Ethical Hacking'],
+          'Genetic Engineering': ['Gene Cloning', 'CRISPR Technology', 'Recombinant DNA'],
+          'Molecular Biology': ['DNA Replication', 'Protein Synthesis', 'Gene Expression'],
+          'Enzymology': ['Enzyme Kinetics', 'Enzyme Inhibition', 'Cofactors and Coenzymes'],
+          'Climate Change': ['Global Warming', 'Carbon Footprint', 'Climate Modeling'],
+          'Sustainability Science': ['Renewable Energy', 'Sustainable Development', 'Circular Economy'],
+          'Environmental Policy': ['Environmental Laws', 'Policy Analysis', 'International Agreements'],
+          'Virology': ['Viral Replication', 'Vaccine Development', 'Antiviral Drugs'],
+          'Immunology': ['Immune Response', 'Antibodies', 'Vaccines'],
+          'Bacteriology': ['Bacterial Growth', 'Antibiotics', 'Pathogenic Bacteria'],
+          'Pharmaceutical Chemistry': ['Drug Synthesis', 'Medicinal Chemistry', 'Pharmacokinetics'],
+          'Pharmacology': ['Drug Action', 'Therapeutics', 'Side Effects'],
+          'Pharmaceutics': ['Drug Delivery Systems', 'Formulation Development', 'Biopharmaceutics'],
+          'Marketing Management': ['Market Research', 'Branding Strategies', 'Digital Marketing'],
+          'Financial Accounting': ['Balance Sheets', 'Income Statements', 'Cash Flow Analysis'],
+          'Human Resource Management': ['Recruitment Strategies', 'Employee Motivation', 'Performance Appraisal'],
+          'Literary Theory': ['Structuralism', 'Postmodernism', 'Feminist Criticism'],
+          'Linguistics': ['Phonetics', 'Syntax', 'Semantics'],
+          'Creative Writing': ['Fiction Writing', 'Poetry', 'Screenwriting'],
+          'Constitutional Law': ['Fundamental Rights', 'Judicial Review', 'Separation of Powers'],
+          'Criminal Law': ['Criminal Procedure', 'Evidence Law', 'Penal Code'],
+          'International Law': ['Treaty Law', 'Human Rights Law', 'Law of the Sea'],
+          'Media Ethics': ['Journalistic Integrity', 'Media Bias', 'Privacy Issues'],
+          'Broadcast Journalism': ['News Production', 'TV Reporting', 'Radio Broadcasting'],
+          'Advertising': ['Ad Campaigns', 'Consumer Behavior', 'Media Planning'],
+        };
+    
+        // Create Room Form - Populate Course and Topic
+        const departmentSelect = document.getElementById("department");
+        const courseSelect = document.getElementById("course");
+        const topicSelect = document.getElementById("topic");
+    
+        departmentSelect.addEventListener("change", function () {
+          const selectedDepartment = departmentSelect.value;
+          courseSelect.innerHTML = '<option value="" selected disabled>Select Course</option>';
+          topicSelect.innerHTML = '<option value="" selected disabled>Select Course First</option>';
+    
+          if (selectedDepartment && coursesByDepartment[selectedDepartment]) {
+            coursesByDepartment[selectedDepartment].forEach((course) => {
+              let option = document.createElement("option");
+              option.value = course;
+              option.textContent = course;
+              courseSelect.appendChild(option);
+            });
+          }
+        });
+    
+        courseSelect.addEventListener("change", function () {
+          const selectedCourse = courseSelect.value;
+          topicSelect.innerHTML = '<option value="" selected disabled>Select Topic</option>';
+    
+          if (selectedCourse && topicsByCourse[selectedCourse]) {
+            topicsByCourse[selectedCourse].forEach((topic) => {
+              let option = document.createElement("option");
+              option.value = topic;
+              option.textContent = topic;
+              topicSelect.appendChild(option);
+            });
+          }
+        });
+    
+        // Notes Upload Form - Populate Course and Topic
+        const noteDepartmentSelect = document.getElementById("noteDepartment");
+        const noteCourseSelect = document.getElementById("noteCourse");
+        const noteTopicSelect = document.getElementById("noteTopic");
+    
+        noteDepartmentSelect.addEventListener("change", function () {
+          const selectedDepartment = noteDepartmentSelect.value;
+          noteCourseSelect.innerHTML = '<option value="" selected disabled>Select Course</option>';
+          noteTopicSelect.innerHTML = '<option value="" selected disabled>Select Course First</option>';
+    
+          if (selectedDepartment && coursesByDepartment[selectedDepartment]) {
+            coursesByDepartment[selectedDepartment].forEach((course) => {
+              let option = document.createElement("option");
+              option.value = course;
+              option.textContent = course;
+              noteCourseSelect.appendChild(option);
+            });
+          }
+        });
+    
+        noteCourseSelect.addEventListener("change", function () {
+          const selectedCourse = noteCourseSelect.value;
+          noteTopicSelect.innerHTML = '<option value="" selected disabled>Select Topic</option>';
+    
+          if (selectedCourse && topicsByCourse[selectedCourse]) {
+            topicsByCourse[selectedCourse].forEach((topic) => {
+              let option = document.createElement("option");
+              option.value = topic;
+              option.textContent = topic;
+              noteTopicSelect.appendChild(option);
+            });
+          }
+        });
+    
+        // Filter Functionality for Notes Section
+        const deptFilter = document.getElementById("deptFilter");
+        const courseFilter = document.getElementById("courseFilter");
+        const topicFilter = document.getElementById("topicFilter");
+        const notesList = document.getElementById("notesList");
+    
+        const initialNotesHTML = notesList.innerHTML;
+    
+        const departments = Object.keys(coursesByDepartment);
+        departments.forEach(dept => {
+          let option = document.createElement("option");
+          option.value = dept;
+          option.textContent = dept;
+          deptFilter.appendChild(option);
+        });
+
+        deptFilter.addEventListener("change", function() {
+          const dept = this.value;
+          courseFilter.innerHTML = '<option value="">All Courses</option>';
+          topicFilter.innerHTML = '<option value="">All Topics</option>';
+    
+          if (dept && coursesByDepartment[dept]) {
+            coursesByDepartment[dept].forEach(course => {
+              let option = document.createElement("option");
+              option.value = course;
+              option.textContent = course;
+              courseFilter.appendChild(option);
+            });
+          }
+          filterNotes();
+        });
+
+        courseFilter.addEventListener("change", function() {
+          const course = this.value;
+          topicFilter.innerHTML = '<option value="">All Topics</option>';
+    
+          if (course && topicsByCourse[course]) {
+            topicsByCourse[course].forEach(topic => {
+              let option = document.createElement("option");
+              option.value = topic;
+              option.textContent = topic;
+              topicFilter.appendChild(option);
+            });
+          }
+          filterNotes();
+        });
+
+        topicFilter.addEventListener("change", function() {
+          filterNotes();
+        });
+
+        function filterNotes() {
+          const dept = deptFilter.value || '';
+          const course = courseFilter.value || '';
+          const topic = topicFilter.value || '';
+    
+          fetch(`/filter_notes/?dept=${encodeURIComponent(dept)}&course=${encodeURIComponent(course)}&topic=${encodeURIComponent(topic)}`, {
+            method: 'GET',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.notes_html) {
+              notesList.innerHTML = data.notes_html;
+              document.querySelectorAll(".review-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                  const noteId = btn.closest('.note-item').dataset.noteId;
+                  document.getElementById("reviewNoteId").value = noteId;
+                  reviewModal.style.display = "block";
+                });
+              });
+              document.querySelectorAll('.download-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  const url = this.href;
+                  const noteItem = this.closest('.note-item');
+                  const downloadCountSpan = noteItem.querySelector('.download-count');
+
+                  fetch(url, {
+                    method: 'GET',
+                    headers: {
+                      'X-Requested-With': 'XMLHttpRequest'
+                    }
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    if (data.success) {
+                      downloadCountSpan.textContent = data.download_count;
+                      window.location.href = url.replace('&ajax=true', '');
+                    }
+                  })
+                  .catch(error => console.error('Error downloading note:', error));
+                });
+              });
+            } else {
+              notesList.innerHTML = '<p>No notes found for the selected filters.</p>';
+            }
+          })
+          .catch(error => {
+            console.error('Error filtering notes:', error);
+            notesList.innerHTML = initialNotesHTML || '<p>Error loading notes. Please try again.</p>';
+            document.querySelectorAll(".review-btn").forEach(btn => {
+              btn.addEventListener("click", () => {
+                const noteId = btn.closest('.note-item').dataset.noteId;
+                document.getElementById("reviewNoteId").value = noteId;
+                reviewModal.style.display = "block";
+              });
+            });
+            document.querySelectorAll('.download-btn').forEach(btn => {
+              btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = this.href;
+                const noteItem = this.closest('.note-item');
+                const downloadCountSpan = noteItem.querySelector('.download-count');
+
+                fetch(url, {
+                  method: 'GET',
+                  headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                  }
+                })
+                .then(response => response.json())
+                .then(data => {
+                  if (data.success) {
+                    downloadCountSpan.textContent = data.download_count;
+                    window.location.href = url.replace('&ajax=true', '');
+                  }
+                })
+                .catch(error => console.error('Error downloading note:', error));
+              });
+            });
+          });
+        }
+    
+        // Notes Upload Form Submission
+        document.getElementById("notesUploadForm").addEventListener("submit", function(e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          
+          fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-CSRFToken': this.querySelector('[name="csrfmiddlewaretoken"]').value,
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              notesUploadModal.style.display = "none";
+              filterNotes();
+            } else {
+              alert(data.message || "Error uploading note");
+            }
+          })
+          .catch(error => console.error('Error uploading note:', error));
+        });
+    
+        // Review Form Submission
+        document.getElementById("reviewForm").addEventListener("submit", function(e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          
+          fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-CSRFToken': this.querySelector('[name="csrfmiddlewaretoken"]').value,
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              reviewModal.style.display = "none";
+              filterNotes();
+            } else {
+              alert(data.message || "Error submitting review");
+            }
+          })
+          .catch(error => console.error('Error submitting review:', error));
+        });
+    
+        // Download Button Logic
+        document.querySelectorAll('.download-btn').forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = this.href;
+            const noteItem = this.closest('.note-item');
+            const downloadCountSpan = noteItem.querySelector('.download-count');
+    
+            fetch(url, {
+              method: 'GET',
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+              }
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                downloadCountSpan.textContent = data.download_count;
+                window.location.href = url.replace('&ajax=true', '');
+              }
+            })
+            .catch(error => console.error('Error downloading note:', error));
+          });
+        });
+    
+        // Logout Functionality
+        function logout() {
+          localStorage.clear();
+          alert("Logged out successfully!");
+        }
+      });
+    </script>
+    <script>
+      if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+              navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+                  .then(registration => {
+                      console.log('Service Worker registered with scope:', registration.scope);
+                  })
+                  .catch(error => {
+                      console.error('Service Worker registration failed:', error);
+                  });
+          });
+      }
+  </script>
+  </body>
+</html>

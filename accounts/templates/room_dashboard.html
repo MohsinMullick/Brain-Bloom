@@ -1,0 +1,411 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Dashboard</title>
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <!-- Meta tags for PWA -->
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background: #C8DAEE;
+            --container-bg: white;
+            --text-primary: #6A88BE;
+            --button-bg: #6A88BE;
+            --button-hover-bg: #5A77A8;
+            --accent: #f98677;
+            --shadow: rgba(0, 0, 0, 0.05);
+            --toggle-bg: #6A88BE;
+            --toggle-color: white;
+            --card-bg: white;
+            --border-color: #C8DAEE;
+        }
+
+        [data-theme="dark"] {
+            --background: #2A3B5A;
+            --container-bg: #1E2A44;
+            --text-primary: #A1B8E6;
+            --button-bg: #6A88BE;
+            --button-hover-bg: #5A77A8;
+            --accent: #FEAFA6;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --toggle-bg: #A1B8E6;
+            --toggle-color: #1E2A44;
+            --card-bg: #26334F;
+            --border-color: #3A4A6F;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Urbanist', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--toggle-bg);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--toggle-color);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .close-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.1);
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .room-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        .room-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px var(--shadow);
+            border-radius: 16px;
+            padding: 20px;
+            transition: transform 0.3s ease;
+            text-align: center;
+            position: relative;
+        }
+
+        .room-item.expired {
+            opacity: 0.6;
+            background: rgba(100, 100, 100, 0.1);
+        }
+
+        .room-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        .tag.public {
+            background-color: #3e51d0;
+            color: white;
+        }
+
+        .tag.private {
+            background-color: #e01c71;
+            color: white;
+        }
+
+        .message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        p {
+            margin: 5px 0;
+            font-size: 0.875rem;
+        }
+
+        p#course {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        p#date, p#dept {
+            color: var(--text-primary);
+        }
+
+        p#time {
+            color: #28a745;
+        }
+
+        .button-group {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .button-group button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .button-group .join-btn {
+            background-color: #28a745;
+        }
+
+        .button-group .remove-btn {
+            background-color: #ff4444;
+        }
+
+        .button-group .join-btn:disabled,
+        .button-group .remove-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .expired-notice {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #dc3545;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+        }
+
+        .quiz-result {
+            margin-top: 10px;
+            font-size: 0.875rem;
+            color: var(--accent);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.875rem;
+            }
+
+            h3 {
+                font-size: 1.25rem;
+            }
+
+            .room-list {
+                grid-template-columns: 1fr;
+                padding: 0 5px;
+            }
+
+            .room-item {
+                padding: 15px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .button-group button {
+                width: 100%;
+            }
+
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.125rem;
+            }
+
+            .room-item {
+                padding: 10px;
+            }
+
+            .theme-toggle {
+                top: 8px;
+                right: 8px;
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <button class="theme-toggle" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+    </button>
+    <button class="close-btn" aria-label="Close">
+        <i class="fas fa-times"></i>
+    </button>
+
+    <h2>Joined Rooms</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div class="room-list">
+        {% if joined_rooms %}
+            {% for room_data in joined_rooms %}
+                <div class="room-item {% if room_data.is_expired %}expired{% endif %}">
+                    {% if room_data.is_expired %}
+                        <span class="expired-notice">Expired</span>
+                    {% endif %}
+                    <h3>{{ room_data.room.title }}</h3>
+                    <span class="tag {{ room_data.room.visibility }}">{{ room_data.room.visibility|title }}</span>
+                    <p id="course">Course: {{ room_data.room.course }}</p>
+                    <p id="dept">Department: {{ room_data.room.department }}</p>
+                    <p id="date">Date: {{ room_data.room.date|date:'m/d/Y' }}</p>
+                    <p id="time">Time: {{ room_data.room.time }}</p>
+                    {% if room_data.is_expired and room_data.has_quiz %}
+                        <p class="quiz-result">
+                            <strong>Quiz Result:</strong>
+                            {% if room_data.has_submitted_quiz %}
+                                {{ room_data.score }}/{{ room_data.room.quizzes.count }}
+                            {% else %}
+                                Not submitted
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                    <div class="button-group">
+                        <form action="{% url 'group_chat' room_data.room.id %}" method="get" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="join-btn" {% if not room_data.room.is_accessible %}disabled{% endif %}>Join</button>
+                        </form>
+                        <form action="{% url 'leave_room' room_data.room.id %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="remove-btn" {% if room_data.is_expired %}disabled{% endif %}>Remove</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No rooms joined yet.</p>
+        {% endif %}
+    </div>
+    
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const themeToggle = document.querySelector(".theme-toggle");
+            const body = document.body;
+            const icon = themeToggle.querySelector("i");
+            const closeBtn = document.querySelector(".close-btn");
+
+            const savedTheme = localStorage.getItem("theme") || "light";
+            body.setAttribute("data-theme", savedTheme);
+            icon.className = savedTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+
+            themeToggle.addEventListener("click", () => {
+                const currentTheme = body.getAttribute("data-theme");
+                const newTheme = currentTheme === "light" ? "dark" : "light";
+                body.setAttribute("data-theme", newTheme);
+                icon.className = newTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+                localStorage.setItem("theme", newTheme);
+            });
+            closeBtn.addEventListener("click", () => {
+                window.location.href = "{% url 'dashboard' %}";
+            });
+        });
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!-- {% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <script src="https://kit.fontawesome.com/a81368914c.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <img class="wave" src="{% static 'img/wave.png' %}">
+    <div class="container">
+        <div class="img">
+            <img src="{% static 'img/login.png' %}">
+        </div>
+        <div class="login-content">
+            <form action="{% url 'login' %}" method="post">
+                {% csrf_token %}
+                <img src="{% static 'img/avatar.png' %}">
+                <h2 class="title">Welcome</h2>
+                <div class="input-div one">
+                    <div class="i">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="div">
+                        <h5>Username</h5>
+                        <input type="email" class="input" name="email" required>
+                    </div>
+                </div>
+                <div class="input-div pass">
+                    <div class="i">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="div">
+                        <h5>Password</h5>
+                        <input type="password" class="input" name="password" required>
+                    </div>
+                </div>
+
+
+                <a href="{% url 'password_recovery' %}">Forgot Password?</a>
+               
+                <input type="submit" class="btn" value="Login">
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
+</body>
+</html> -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <!-- Meta tags for PWA -->
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/uistyle.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <script src="https://kit.fontawesome.com/a81368914c.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <button class="theme-toggle" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+    </button>
+    <div class="main-container">
+        <div class="img-container">
+            <img src="{% static 'img/bg.png' %}" alt="Background Illustration">
+        </div>
+        <div class="form-container">
+            <div class="container">
+                <div class="login-content">
+                    <form action="{% url 'login' %}" method="post">
+                        {% csrf_token %}
+                        <h2 class="title">Welcome</h2>
+                        <div class="input-div">
+                            <div class="div">
+                                <h5>Email</h5>
+                                <input type="email" class="input" name="email" required>
+                            </div>
+                        </div>
+                        <div class="input-div">
+                            <div class="div">
+                                <h5>Password</h5>
+                                <input type="password" class="input" name="password" required>
+                            </div>
+                        </div>
+                        <a href="{% url 'password_recovery' %}">Forgot Password?</a>
+                        <input type="submit" class="btn" value="Login">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const themeToggle = document.querySelector(".theme-toggle");
+            const body = document.body;
+            const icon = themeToggle.querySelector("i");
+
+            // Check localStorage for saved theme preference
+            const savedTheme = localStorage.getItem("theme") || "light";
+            body.setAttribute("data-theme", savedTheme);
+            icon.className = savedTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+
+            themeToggle.addEventListener("click", () => {
+                const currentTheme = body.getAttribute("data-theme");
+                const newTheme = currentTheme === "dark" ? "light" : "dark";
+                body.setAttribute("data-theme", newTheme);
+                icon.className = newTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+                localStorage.setItem("theme", newTheme); // Save preference
+            });
+        });
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

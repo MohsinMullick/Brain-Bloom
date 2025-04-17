@@ -1,0 +1,294 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings</title>
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <!-- Meta tags for PWA -->
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background: #C8DAEE;
+            --container-bg: white;
+            --text-primary: #6A88BE;
+            --button-bg: #6A88BE;
+            --button-hover-bg: #5A77A8;
+            --accent: #f98677;
+            --shadow: rgba(0, 0, 0, 0.05);
+            --toggle-bg: #6A88BE;
+            --toggle-color: white;
+        }
+
+        [data-theme="dark"] {
+            --background: #2A3B5A;
+            --container-bg: #1E2A44;
+            --text-primary: #A1B8E6;
+            --button-bg: #6A88BE;
+            --button-hover-bg: #5A77A8;
+            --accent: #FEAFA6;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --toggle-bg: #A1B8E6;
+            --toggle-color: #1E2A44;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Urbanist', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--toggle-bg);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--toggle-color);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: var(--container-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .profile-info {
+            margin-bottom: 20px;
+        }
+
+        .profile-info p {
+            margin: 10px 0;
+            font-size: 1rem;
+        }
+
+        .profile-info p strong {
+            font-weight: 500;
+            color: var(--accent);
+        }
+
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: block;
+            margin: 0 auto 20px;
+            object-fit: cover;
+        }
+
+        .update-btn, .dashboard-btn {
+            display: block;
+            width: 200px;
+            margin: 10px auto;
+            padding: 10px;
+            background: var(--button-bg);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        .close-btn {
+        color: var(--text-primary);
+        float: right;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+      }
+        .update-btn:hover, .dashboard-btn:hover {
+            background: var(--button-hover-bg);
+        }
+
+        .update-btn i, .dashboard-btn i {
+            margin-right: 8px;
+        }
+
+        .message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 30px auto;
+                padding: 15px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .profile-info p {
+                font-size: 0.875rem;
+            }
+
+            .update-btn, .dashboard-btn {
+                width: 180px;
+                padding: 8px;
+            }
+
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 20px auto;
+                padding: 10px;
+            }
+
+            h2 {
+                font-size: 1.25rem;
+            }
+
+            .profile-img {
+                width: 80px;
+                height: 80px;
+            }
+
+            .update-btn, .dashboard-btn {
+                width: 160px;
+                padding: 6px;
+            }
+
+            .theme-toggle {
+                top: 8px;
+                right: 8px;
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <button class="theme-toggle" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+    </button>
+    <div class="container">
+        
+        <span class="close-btn">×</span>
+        <h2>My Profile</h2>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="profile-img" />
+        {% else %}
+            <img src="{% static 'img/avatar.png' %}" alt="Profile Picture" class="profile-img" />
+        {% endif %}
+        <div class="profile-info">
+            <p><strong>Username:</strong> {{ user.name }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Password:</strong> ********</p>
+            <p><strong>Department:</strong> {{ user.department|default:"Not set" }}</p>
+            <p><strong>Semester:</strong> {{ user.semester|default:"Not set" }}</p>
+        </div>
+        <a href="{% url 'update_profile' %}" class="update-btn"><i class="fas fa-edit"></i> Update Profile</a>
+       
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const themeToggle = document.querySelector(".theme-toggle");
+            const body = document.body;
+            const icon = themeToggle.querySelector("i");
+            const closeBtn = document.querySelector(".close-btn");
+           
+
+            const savedTheme = localStorage.getItem("theme") || "light";
+            body.setAttribute("data-theme", savedTheme);
+            icon.className = savedTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+         
+            themeToggle.addEventListener("click", () => {
+                const currentTheme = body.getAttribute("data-theme");
+                const newTheme = currentTheme === "light" ? "dark" : "light";
+                body.setAttribute("data-theme", newTheme);
+                icon.className = newTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+                localStorage.setItem("theme", newTheme);
+            });
+
+            closeBtn.addEventListener("click", () => {
+                window.location.href = "{% url 'dashboard' %}";
+            });
+         
+
+        });
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

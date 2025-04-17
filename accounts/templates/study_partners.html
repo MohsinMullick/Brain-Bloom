@@ -1,0 +1,85 @@
+<!-- study_partners.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="study-partners-section">
+  <h3>Pending Requests (Received)</h3>
+  {% for request in received_requests %}
+    <div class="study-partner-item">
+      <div class="study-partner-content">
+        <div style="font-weight: 500">{{ request.sender.name }} ({{ request.sender.department }})</div>
+        <div style="font-size: 0.875rem; color: var(--text-primary)">Sent on {{ request.created_at|date:'m/d/Y' }}</div>
+      </div>
+      <div class="study-partner-actions">
+        <button class="action-btn accept-btn" data-request-id="{{ request.id }}">Accept</button>
+        <button class="action-btn reject-btn" data-request-id="{{ request.id }}">Reject</button>
+      </div>
+    </div>
+  {% empty %}
+    <p>No pending requests.</p>
+  {% endfor %}
+
+  <h3>Sent Requests</h3>
+  {% for request in sent_requests %}
+    <div class="study-partner-item">
+      <div class="study-partner-content">
+        <div style="font-weight: 500">{{ request.receiver.name }} ({{ request.receiver.department }})</div>
+        <div style="font-size: 0.875rem; color: var(--text-primary)">Status: {{ request.status|title }}</div>
+      </div>
+    </div>
+  {% empty %}
+    <p>No sent requests.</p>
+  {% endfor %}
+
+  <h3>My Study Partners</h3>
+  {% for request in study_partners %}
+    <div class="study-partner-item">
+      <div class="study-partner-content">
+        <div style="font-weight: 500">
+          {% if request.sender == user %}
+            {{ request.receiver.name }} ({{ request.receiver.department }})
+          {% else %}
+            {{ request.sender.name }} ({{ request.sender.department }})
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p>No study partners yet.</p>
+  {% endfor %}
+</div>
+
+<script>
+  document.querySelectorAll('.action-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const requestId = this.dataset.requestId;
+      const action = this.classList.contains('accept-btn') ? 'accept' : 'reject';
+      const button = this;
+      button.disabled = true;
+
+      fetch("{% url 'handle_study_partner_request' %}", {
+        method: 'POST',
+        body: new FormData().append('request_id', requestId).append('action', action),
+        headers: {
+          'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]').value,
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert(data.message);
+          window.location.reload();
+        } else {
+          button.disabled = false;
+          alert(data.message || 'Error processing request');
+        }
+      })
+      .catch(error => {
+        console.error('Error processing request:', error);
+        button.disabled = false;
+        alert('Error processing request: ' + error.message);
+      });
+    });
+  });
+</script>
+{% endblock %}

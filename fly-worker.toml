@@ -1,0 +1,22 @@
+app = "brain-bloom-worker"
+primary_region = "iad"
+
+[build]
+dockerfile = "Dockerfile"
+
+[env]
+REDIS_URL = "redis://default:Brain-Bloom@redis-15027.c321.us-east-1-2.ec2.redns.redis-cloud.com:15027"
+  DATABASE_URL = "postgresql://postgres.frqgidaxpqwvkvyqvzvv:brain-bloom123@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+[processes]
+  worker = "celery -A brain-bloom-django worker --loglevel=info"
+
+  [mounts]
+ source = "data"
+  destination = "/data"
+  size = "2GB"

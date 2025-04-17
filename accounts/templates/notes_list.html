@@ -1,0 +1,26 @@
+{% for note in notes %}
+  <div class="note-item" data-note-id="{{ note.id }}">
+    <div class="note-content">
+      <h4>{{ note.title }}</h4>
+      <p>Department: {{ note.department }} | Course: {{ note.course }} | Topic: {{ note.topic }}</p>
+      <p>Uploaded by: {{ note.uploader.name }} on {{ note.uploaded_at|date:'m/d/Y H:i' }}</p>
+      <p>Downloads: <span class="download-count">{{ note.download_count }}</span></p>
+      <div class="note-actions">
+        <a href="{% url 'download_note' note.id %}" class="download-btn">Download</a>
+        <button class="review-btn">Add Review</button>
+      </div>
+    </div>
+    <div class="reviews">
+      <h5>Reviews:</h5>
+      {% for review in note.reviews.all %}
+        <div class="review-item">
+          <p>{{ review.comment }}</p>
+          <p>Rating: {{ review.rating }}/5</p>
+          <p>By: {{ review.reviewer.name }} on {{ review.created_at|date:'m/d/Y' }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% empty %}
+  <p>No notes available for the selected filters.</p>
+{% endfor %}

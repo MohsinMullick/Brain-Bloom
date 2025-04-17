@@ -1,0 +1,532 @@
+{% load quiz_filters %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Room - {{ room.title }}</title>
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <!-- Meta tags for PWA -->
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="{% static 'css/group_chat.css' %}" rel="stylesheet">
+</head>
+<body data-theme="light">
+    <!-- <button class="theme-toggle" aria-label="Toggle theme"><i class="fas fa-moon"></i></button> -->
+    <nav class="navbar">
+        <div class="logo-container">
+            <img src="{% static 'img/logo.jpg' %}" alt="Logo" class="logo-img" />
+            <div class="logo">Brain Bloom</div>
+        </div>
+        <div class="nav-controls">
+            <a href="{% url 'home' %}" class="home-btn" aria-label="Home">
+                <i class="fas fa-home"></i>
+            </a>
+            <button class="theme-toggle" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </nav>
+    <br><br><br>
+
+
+    <h2>Study Room - {{ room.title }}</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if not can_access_chat %}
+        <div style="text-align: center; color: var(--text-primary);">
+            <h3>Study session time is {{ room.date|date:'Y-m-d' }} at {{ room.time|date:'h:i A' }}. Please wait until the exact time to enter the chat room.</h3>
+        </div>
+    {% else %}
+    
+        <div class="study-container">
+            <div class="left-section">
+                <div class="room-info">
+                    <h3>{{ room.title|truncatewords:3 }}</h3>
+                    <p>Course: {{ room.course }}</p>
+                    <p>Total Members: {{ total_members }}</p>
+                </div>
+                <h3>Participants Present</h3>
+                <div class="present-participants">
+                    {% for participant in participants %}
+                        <div class="participant">
+                            <img src="{% if participant.profile_picture %}{{ participant.profile_picture.url }}{% else %}{% static 'img/avatar.png' %}{% endif %}" alt="{{ participant.name }}">
+                            <span>{{ participant.name }}</span>
+                        </div>
+                    {% empty %}
+                        <p>No participants present yet.</p>
+                    {% endfor %}
+                </div>
+                {% if is_study_session %}
+                    <div class="upload-section">
+                        <h3>Upload Study Materials</h3>
+                        <form id="upload-form" enctype="multipart/form-data" method="post">
+                            {% csrf_token %}
+                            <input type="file" name="study_material" accept=".pdf" required {% if not is_study_session %}disabled{% endif %}>
+                            <button type="submit" {% if not is_study_session %}disabled{% endif %}>Upload</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="right-section">
+                <!-- Add Timer Here -->
+                {% if is_quiz_session %}
+                    <div id="quiz-timer" class="quiz-timer">
+                        Time Remaining: <span id="timer-display">00:00</span>
+                    </div>
+                {% endif %}
+
+                <div class="tab-buttons">
+                    <button class="tab-button {% if not is_quiz_session and not is_ranking_session %}active{% endif %}" data-tab="summary">Summary</button>
+                    <button class="tab-button" data-tab="key-points">Key Points & Resources</button>
+                    <button class="tab-button {% if is_quiz_session or is_ranking_session %}active{% endif %}" data-tab="quiz">Quiz & Ranking</button>
+                </div>
+                <div class="tab-content {% if not is_quiz_session and not is_ranking_session %}active{% endif %}" id="summary">
+                    <div class="summary-section">
+                        <h3>Summary</h3>
+                        <div id="summarizing-message" style="display: none; color: var(--accent); font-style: italic;">
+                            <p>PDF is being summarized... Please wait until summarization is complete before chatting.</p>
+                        </div>
+                        <div class="summary-content" id="summary-content">
+                            {% for summary in summaries %}
+                                <div class="summary-item">
+                                    <span class="pdf-name">{{ summary.pdf_name }}</span>
+                                    <p><strong>{{ summary.uploader.name }}:</strong> {{ summary.summary_text }}</p>
+                                </div>
+                            {% empty %}
+                                <p> Upload a PDF to generate one.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="key-points">
+                    <h3>Key Points & Resources</h3>
+                    <h4>Key Points</h4>
+                    {% if key_points %}
+                        <ul>
+                            {% for point in key_points %}
+                                <li>{{ point }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No key points available.</p>
+                    {% endif %}
+                    <h4>Recommended Resources</h4>
+                    {% if resources %}
+                        <ul>
+                            {% for resource in resources %}
+                                <li><a href="{{ resource.link }}" target="_blank">{{ resource.type }} Search</a></li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No resources available.</p>
+                    {% endif %}
+                </div>
+                <div class="tab-content {% if is_quiz_session or is_ranking_session %}active{% endif %}" id="quiz">
+                    <h3>Quiz & Ranking</h3>
+                    <div id="quiz-content">
+                        {% if is_quiz_session %}
+                            {% if has_submitted_quiz %}
+                                <div id="quiz-submitted-message" class="visible">
+                                    <p>Quiz submitted! Please wait for the ranking session.</p>
+                                </div>
+                            {% else %}
+                                <div id="quiz-form-container">
+                                    <form id="quiz-form" method="post" action="{% url 'submit_quiz' room_id=room.id %}">
+                                        {% csrf_token %}
+                                        {% for quiz in quizzes %}
+                                            <div class="quiz-item">
+                                                <p>{{ quiz.question }}</p>
+                                                <ul>
+                                                    {% for key, value in quiz.options.items %}
+                                                        <li>
+                                                            <label>
+                                                                <input type="radio" name="quiz_{{ quiz.id }}" value="{{ key }}"
+                                                                    {% if quiz_selected_answers|get_item:quiz.id|stringformat:"s" == key %}checked{% endif %}>
+                                                                {{ key }}: {{ value }}
+                                                            </label>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        {% empty %}
+                                            <p>Quiz is being prepared...</p>
+                                        {% endfor %}
+                                        <button type="button" id="submit-quiz-button">Submit Quiz</button>
+                                    </form>
+                                </div>
+                                <div id="quiz-submitted-message" class="hidden">
+                                    <p>Quiz submitted! Please wait for the ranking session.</p>
+                                </div>
+                            {% endif %}
+                        {% elif is_ranking_session %}
+                            <div class="quiz-ranking">
+                                <h2>Rankings</h2>
+                                {% if rankings %}
+                                    <ol>
+                                        {% for name, score in rankings %}
+                                            <li>{{ name }}: {{ score }}/5</li>
+                                        {% endfor %}
+                                    </ol>
+                                {% else %}
+                                    <p>Calculating rankings...</p>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <p id="quiz-status">Quiz will start after the study session ends at {{ room.get_end_time|date:"H:i" }}.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="chat-section">
+                    <h3>Group Chat</h3>
+                    <div class="chat-messages" id="chat-messages">
+                        {% for message in chat_messages %}
+                            <div class="chat-message {% if message.is_ai_response %}ai-message{% else %}{% if message.sender.id == user.id %}mine{% else %}other{% endif %}{% endif %}">
+                                <span class="username">{{ message.sender.name|default:'AI' }}</span>
+                                <span class="timestamp">{{ message.timestamp|date:'H:i' }}</span>
+                                <div class="message-content">
+                                    {{ message.message|safe }}
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p>Start chatting!</p>
+                        {% endfor %}
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="chat-input" placeholder="Type a message... (use @username to mention, @ai to ask the AI)" {% if is_quiz_session or is_ranking_session %}disabled{% endif %}>
+                        <button onclick="sendMessage()" {% if is_quiz_session or is_ranking_session %}disabled{% endif %}>Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <a href="{% url 'room_dashboard' %}" class="back-link">Back to Room Dashboard</a>
+
+
+  
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const themeToggle = document.querySelector(".theme-toggle");
+            const body = document.body;
+            const icon = themeToggle.querySelector("i");
+            const savedTheme = localStorage.getItem("theme") || "light";
+            body.setAttribute("data-theme", savedTheme);
+            icon.className = savedTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+    
+            themeToggle.addEventListener("click", () => {
+                const currentTheme = body.getAttribute("data-theme");
+                const newTheme = currentTheme === "light" ? "dark" : "light";
+                body.setAttribute("data-theme", newTheme);
+                icon.className = newTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+                localStorage.setItem("theme", newTheme);
+            });
+    
+            const tabButtons = document.querySelectorAll(".tab-button");
+            const tabContents = document.querySelectorAll(".tab-content");
+    
+            tabButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    tabButtons.forEach(btn => btn.classList.remove("active"));
+                    tabContents.forEach(content => content.classList.remove("active"));
+    
+                    button.classList.add("active");
+                    const tabId = button.getAttribute("data-tab");
+                    document.getElementById(tabId).classList.add("active");
+                });
+            });
+    
+            const roomId = "{{ room.id }}";
+            const currentUserId = "{{ user_id }}";
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            const summaryContent = document.getElementById('summary-content');
+            const summarizingMessage = document.getElementById('summarizing-message');
+            const quizContent = document.getElementById('quiz-content');
+            const quizFormContainer = document.getElementById('quiz-form-container');
+            const quizSubmittedMessage = document.getElementById('quiz-submitted-message');
+            const quizStatus = document.getElementById('quiz-status');
+            const sendButton = document.querySelector('.chat-input button');
+            const submitQuizButton = document.getElementById('submit-quiz-button');
+            const uploadForm = document.getElementById('upload-form');
+    
+            const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+            const wsUrl = `${protocol}${window.location.host}/ws/room/${roomId}/`;
+            const ws = new WebSocket(wsUrl);
+    
+            const quizResponsesLength = '{{ quiz_responses|length }}';
+            const quizzesLength = '{{ quizzes|length }}';
+            let hasSubmittedQuiz = quizResponsesLength >= quizzesLength;
+    
+            ws.onopen = function () {
+                console.log('WebSocket connection established');
+            };
+    
+            ws.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                console.log('Received WebSocket message:', data);
+    
+                if (data.type === 'chat_message') {
+                    const messageDiv = document.createElement('div');
+                    const isMine = data.user_id && data.user_id.toString() === currentUserId.toString();
+                    const isAI = data.is_ai_response;
+                    messageDiv.classList.add('chat-message', isAI ? 'ai-message' : (isMine ? 'mine' : 'other'));
+    
+                    let messageContent = data.message;
+                    if (data.mentions && data.mentions.length > 0) {
+                        data.mentions.forEach(mention => {
+                            messageContent = messageContent.replace(
+                                new RegExp(`@${mention}\\b`, 'g'),
+                                `<span class="mention">@${mention}</span>`
+                            );
+                        });
+                    }
+    
+                    messageDiv.innerHTML = `
+                        <span class="username">${data.username}</span>
+                        <span class="timestamp">${new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <div class="message-content">${messageContent}</div>
+                    `;
+                    chatMessages.appendChild(messageDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                } else if (data.type === 'summarizing_start') {
+                    summarizingMessage.style.display = 'block';
+                    summaryContent.style.display = 'none';
+                    chatInput.disabled = true;
+                    sendButton.disabled = true;
+                } else if (data.type === 'final_summary') {
+                    isSummarizing = false;
+                    summarizingMessage.style.display = 'none';
+                    summaryContent.style.display = 'block';
+    
+                    const summaryItem = document.createElement('div');
+                    summaryItem.classList.add('summary-item');
+                    summaryItem.innerHTML = `
+                        <span class="pdf-name">${data.pdf_name}</span>
+                        <p><strong>${data.username}:</strong> ${data.summary}</p>
+                    `;
+                    summaryContent.insertBefore(summaryItem, summaryContent.firstChild);
+    
+                    const noSummariesMessage = summaryContent.querySelector('p');
+                    if (noSummariesMessage && noSummariesMessage.textContent.includes('No summaries available')) {
+                        noSummariesMessage.remove();
+                    }
+    
+                    chatInput.disabled = false;
+                    sendButton.disabled = false;
+                } else if (data.type === 'quiz_start_notification') {
+                    console.log('Quiz start notification received:', data.message);
+                    const hasSeenQuizStart = localStorage.getItem('hasSeenQuizStart_{{ room.id }}');
+                    if (!hasSeenQuizStart) {
+                        alert(data.message);
+                        localStorage.setItem('hasSeenQuizStart_{{ room.id }}', 'true');
+                        tabButtons.forEach(btn => btn.classList.remove("active"));
+                        tabContents.forEach(content => content.classList.remove("active"));
+                        document.querySelector('.tab-button[data-tab="quiz"]').classList.add("active");
+                        document.getElementById('quiz').classList.add("active");
+                    }
+                } else if (data.type === 'ranking') {
+                    quizContent.innerHTML = `
+                        <div class="quiz-ranking">
+                            <h4>Quiz Ranking</h4>
+                            <ol>
+                                ${data.rankings.map(([name, score]) => `<li>${name}: ${score}/5</li>`).join('')}
+                            </ol>
+                        </div>
+                    `;
+                } else if (data.type === 'error') {
+                    console.error('WebSocket error:', data.message);
+                    alert(`Error: ${data.message}`);
+                }
+            };
+    
+            ws.onclose = function () {
+                console.log('WebSocket connection closed');
+                alert("WebSocket connection closed. You may need to refresh the page to reconnect.");
+            };
+    
+            ws.onerror = function (error) {
+                console.error('WebSocket error:', error);
+                alert("WebSocket error occurred. Check the console for details.");
+            };
+    
+            window.sendMessage = function () {
+                console.log("sendMessage called");
+                const message = chatInput.value.trim();
+                if (!message) {
+                    console.log("No message to send (empty input)");
+                    return;
+                }
+    
+                if (chatInput.disabled) {
+                    console.log("Chat input is disabled, cannot send message");
+                    alert("Chat is disabled during the quiz or ranking session. Please wait until the session ends.");
+                    return;
+                }
+    
+                try {
+                    if (ws.readyState !== WebSocket.OPEN) {
+                        console.error("WebSocket is not open. Current state:", ws.readyState);
+                        alert("Cannot send message: WebSocket connection is not open.");
+                        return;
+                    }
+    
+                    console.log("Sending message:", message);
+                    ws.send(JSON.stringify({
+                        'type': 'chat_message',
+                        'message': message
+                    }));
+                    chatInput.value = '';
+                    console.log("Message sent successfully");
+                } catch (error) {
+                    console.error("Error sending message:", error);
+                    alert("Failed to send message: " + error.message);
+                }
+            };
+    
+            window.submitQuizForm = function () {
+                console.log("Submit Quiz button clicked");
+                if (hasSubmittedQuiz) {
+                    alert("You have already submitted the quiz!");
+                    return;
+                }
+    
+                const form = document.getElementById('quiz-form');
+                const formData = new FormData(form);
+                let allAnswered = true;
+    
+                const quizIds = JSON.parse('{{ quizzes|map:"id"|safe|default:"[]"|escapejs }}');
+                for (let quizId of quizIds) {
+                    if (!formData.get(`quiz_${quizId}`)) {
+                        allAnswered = false;
+                        break;
+                    }
+                }
+    
+                if (!allAnswered) {
+                    alert("Please answer all questions before submitting!");
+                    return;
+                }
+    
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        hasSubmittedQuiz = true;
+                        quizFormContainer.classList.add('hidden');
+                        quizSubmittedMessage.classList.remove('hidden');
+                        console.log("Quiz form hidden, submission message shown");
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting quiz:', error);
+                    alert('An error occurred while submitting the quiz.');
+                });
+            };
+    
+            if (submitQuizButton) {
+                submitQuizButton.addEventListener('click', submitQuizForm);
+            }
+    
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(uploadForm);
+    
+                    fetch(window.location.href, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': "{{ csrf_token }}"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log("PDF uploaded successfully");
+                        } else {
+                            alert(data.message || "Failed to upload PDF.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error uploading PDF:', error);
+                        alert('An error occurred while uploading the PDF.');
+                    });
+                });
+            }
+    
+            chatInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Timer Logic
+            const quizEndTimestamp =Number("{{ quiz_end_timestamp}}");
+            const timerDisplay = document.getElementById('timer-display');
+
+            if (quizEndTimestamp && timerDisplay) {
+                function updateTimer() {
+                    const now = Date.now();
+                    const timeRemaining = quizEndTimestamp - now;
+
+                    if (timeRemaining <= 0) {
+                        timerDisplay.textContent = "00:00";
+                        document.getElementById('quiz-timer').style.display = 'none';
+                        clearInterval(timerInterval);
+                        return;
+                    }
+
+                    const minutes = Math.floor(timeRemaining / 1000 / 60);
+                    const seconds = Math.floor((timeRemaining / 1000) % 60);
+                    timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+
+                // Update timer every second
+                updateTimer(); // Initial update
+                const timerInterval = setInterval(updateTimer, 1000);
+            }
+        });
+    </script>
+
+    <script type="application/json" id="quiz-data">
+        [
+            {% for quiz in quizzes %}
+                { "id": {{ quiz.id }}, "question": "{{ quiz.question|escapejs }}", "options": {{ quiz.options|safe }} }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

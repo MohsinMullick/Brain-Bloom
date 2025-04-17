@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Room</title>
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <!-- Meta tags for PWA -->
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <style>
+        :root {
+            --primary-color: #c90dba;
+            --bg-light: #f9fafb;
+            --bg-dark: #12021d;
+            --text-light: #1f2937;
+            --text-dark: #ffffff;
+            --card-bg-light: rgba(255, 255, 255, 0.7);
+            --card-bg-dark: rgba(255, 255, 255, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: var(--bg-dark);
+            --text-color: var(--text-dark);
+            --card-bg: var(--card-bg-dark);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="light"] {
+            --bg-color: var(--bg-light);
+            --text-color: var(--text-light);
+            --card-bg: var(--card-bg-light);
+            --border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .message {
+            padding: 10px;
+            margin-bottom: 10px;
+            color: #155724;
+            border-radius: 5px;
+        }
+
+        .success-message {
+            background: #d4edda;
+        }
+
+        .error-message {
+            background: #f8d7da;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="modal" style="display: block; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.752);">
+        <div class="modal-content" style="background: rgb(238,174,202); background: radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,0.5999649859943977) 100%); color: white; backdrop-filter: blur(12px); margin: 10% auto; padding: 2rem; border: 1px solid var(--border-color); border-radius: 1rem; max-width: 500px; box-shadow: var(--shadow);">
+            <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: rgb(101, 11, 83); text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">Join Private Room</h2>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <form method="post" action="{% url 'join_room_base' %}">  <!-- Changed to join_room_base -->
+                {% csrf_token %}
+                <div class="form-group" style="margin-bottom: 1.5rem">
+                    <label for="code" style="display: block; margin-bottom: 0.5rem; font-weight: 500">Enter Room Code</label>
+                    <input type="text" id="code" name="code" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; background: var(--glass-bg); backdrop-filter: blur(8px); color: var(--text-color);" />
+                </div>
+                <button type="submit" style="width: 100%; padding: 0.75rem; background: var(--primary-color); color: white; border: none; border-radius: 0.5rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Join Room</button>
+            </form>
+            <a href="{% url 'dashboard' %}" style="display: block; text-align: center; margin-top: 1rem; color: rgb(101, 11, 83); text-decoration: none;">Back to Dashboard</a>
+        </div>
+    </div>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

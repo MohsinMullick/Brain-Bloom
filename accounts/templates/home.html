@@ -1,0 +1,1402 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brain Bloom - Virtual Group Study</title>
+    <!-- <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script> -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <!-- Meta tags for PWA -->
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+   
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+      :root {
+        /* Light Theme Variables */
+        /* --background: #f1f5fc;
+        --container-bg: rgb(250, 253, 255);
+        --img-container-bg: #F7FAFD;
+        --text-primary: #6A88BE;
+        --input-bg: #fefddf;
+        --input-border: #C8DAEE;
+        --button-bg: #6A88BE;
+        --button-hover-bg: #5A77A8;
+        --accent: #FEBCB3;
+        --shadow: rgba(0, 0, 0, 0.05);
+        --input-focus-shadow: rgba(106, 136, 190, 0.2);
+        --toggle-bg: #6A88BE;
+        --toggle-color: white;
+        --card-bg: rgb(253, 254, 240);
+        --border-color: #C8DAEE; */
+
+
+
+        --background: #fffef8;
+    --container-bg: rgb(241 240 235);
+    --img-container-bg: #F7FAFD;
+    --text-primary: #3c5e9a;
+    --input-bg: #fffff0;
+    --input-border: #C8DAEE;
+    --button-bg: #6A88BE;
+    --button-hover-bg: #5A77A8;
+    --accent: #ff12d7;
+    --shadow: rgba(0, 0, 0, 0.05);
+    --input-focus-shadow: rgba(106, 136, 190, 0.2);
+    --toggle-bg: #dbe3f3;
+    --toggle-color: white;
+    --card-bg: rgb(234 235 229);
+    --border-color: #C8DAEE;
+      }
+
+      [data-theme="dark"] {
+        /* Dark Theme Variables */
+        /* --background: #2A3B5A;
+        --container-bg: #1E2A44;
+        --img-container-bg: #26334F;
+        --text-primary: #A1B8E6;
+        --input-bg: #26334F;
+        --input-border: #3A4A6F;
+        --button-bg: #6A88BE;
+        --button-hover-bg: #5A77A8;
+        --accent: #f4a097;
+        --shadow: rgba(0, 0, 0, 0.3);
+        --input-focus-shadow: rgba(106, 136, 190, 0.3);
+        --toggle-bg: #A1B8E6;
+        --toggle-color: #1E2A44;
+        --card-bg: #26334F;
+        --border-color: #3A4A6F; */
+
+
+        --background: #060e1d;
+    --container-bg: #0a1325;
+    --img-container-bg: #142038;
+    --text-primary: #969fb1;
+    --input-bg: #26334F;
+    --input-border: #2f4b8c;
+    --button-bg: #6A88BE;
+    --button-hover-bg: #5A77A8;
+    --accent: #57dbe4;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --input-focus-shadow: rgba(106, 136, 190, 0.3);
+    --toggle-bg: #A1B8E6;
+    --toggle-color: #1E2A44;
+    --card-bg: #061025;
+    --border-color: #25458d
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+    .review-card {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .rating {
+        color: #ffd700;
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+      body {
+        font-family: 'Urbanist', sans-serif;
+        background-color: var(--background);
+        color: var(--text-primary);
+        line-height: 1.5;
+      }
+
+      /* Intro Animation */
+      .intro-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: #007BFF; /* Blue background matching the logo */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+      }
+
+      .intro-screen.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .intro-logo {
+        width: 500px;
+        height: 400px;
+        opacity: 0;
+        transform: scale(0.8);
+        animation: fadeInScale 1s ease forwards;
+      }
+
+      .intro-title {
+        font-size: 4.5rem;
+        font-weight: 700;
+        color: white;
+        margin-top: 20px;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: slideIn 1s ease 0.5s forwards;
+      }
+
+      @keyframes fadeInScale {
+        0% {
+          opacity: 0;
+          transform: scale(0.8);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes slideIn {
+        0% {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: var(--container-bg);
+        border-bottom: 1px solid var(--border-color);
+        z-index: 1000;
+        padding: 0 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 20px;
+        border-radius: 30px;
+        width: 90%;
+        margin-left: 5%;
+      }
+
+      .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .logo-img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .logo {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 24px;
+      }
+
+      .nav-links a {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1.1rem;
+        padding: 5px 10px;
+        position: relative;
+        transition: color 0.3s ease;
+      }
+
+      .nav-links a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background: var(--accent);
+        transition: width 0.3s ease;
+      }
+
+      .nav-links a:hover::after {
+        width: 100%;
+      }
+
+      .nav-links a:hover {
+        color: var(--accent);
+      }
+
+      .nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .theme-toggle {
+        background: var(--toggle-bg);
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: var(--toggle-color);
+        transition: all 0.3s ease;
+      }
+
+      .theme-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 2px 4px var(--shadow);
+      }
+
+      .hero-text h1.bb {
+        color: var(--accent);
+        margin-bottom: 8px;
+        font-size: 3.8rem;
+        font-weight: 700;
+      }
+
+      .main-content {
+        margin-top: 64px;
+        padding: 24px;
+      }
+
+      .hero-section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 48px 24px;
+        background: var(--container-bg);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px var(--shadow);
+        margin-bottom: 48px;
+        margin-top: 30px;
+      }
+
+      .hero-text {
+        max-width: 50%;
+      }
+
+      .hero-text h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: -22px;
+        color: var(--text-primary);
+      }
+
+      .hero-text p {
+        font-size: 1.2rem;
+        margin-bottom: 50px;
+      }
+
+      .hero-text .cta-btn {
+        background: var(--button-bg);
+        background-color: rgb(65, 65, 158);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+      }
+
+      .hero-text .cta-btn:hover {
+        background: var(--button-hover-bg);
+      }
+
+      .hero-image img {
+        max-width: 100%;
+        border-radius: 16px;
+      }
+
+      .about-section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 80px 40px;
+        background: var(--container-bg);
+        border-radius: 20px;
+        margin-bottom: 60px;
+        position: relative;
+      }
+
+      .about-images {
+        max-width: 40%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .about-images img {
+        width: 100%;
+        border-radius: 15px;
+        object-fit: cover;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      #about {
+        box-shadow: 0 5px 15px var(--shadow);
+      }
+
+      .about-images img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px var(--shadow);
+      }
+
+      .about-text {
+        max-width: 55%;
+      }
+
+      .about-text h2 {
+        font-size: 3.5rem;
+        font-weight: 900;
+        margin-bottom: 20px;
+        color: var(--accent);
+        text-align: center;
+      }
+
+      .about-text h3 {
+        font-size: 2.7rem;
+        font-weight: 900;
+        margin-bottom: 20px;
+        color: var(--button-bg);
+        text-align: center;
+      }
+
+      .about-text p {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        text-align: center;
+        padding: 0 20px;
+        color: var(--text-primary);
+        opacity: 0.9;
+      }
+
+      .about-feature ul {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 20px;
+      }
+
+      .about-feature ul li {
+        border: none;
+        padding: 15px;
+        border-radius: 15px;
+        background: var(--img-container-bg);
+        box-shadow: 0 3px 10px var(--shadow);
+        transition: transform 0.3s ease;
+        width: 70%;
+        margin-left: 15%;
+      }
+
+      .about-feature ul li:hover {
+        transform: translateY(-5px);
+      }
+
+      .about-feature p {
+        font-size: 1.1rem;
+        text-align: center;
+        color: var(--text-primary);
+      }
+
+      .about-feature i {
+        font-size: 1.5rem;
+        color: var(--accent);
+        margin-bottom: 10px;
+      }
+
+      .services-section {
+        padding: 80px 40px;
+        text-align: center;
+      }
+
+      .services-section h2 {
+        font-size: 3.5rem;
+        font-weight: 900;
+        margin-bottom: 40px;
+        color: var(--text-primary);
+      }
+
+      .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+      }
+
+      .service-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 15px var(--shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .service-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--gradient);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .service-card:hover::before {
+        opacity: 0.1;
+      }
+
+      .service-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px var(--shadow);
+      }
+
+      .service-card i {
+        font-size: 2.5rem;
+        color: var(--accent);
+        margin-bottom: 20px;
+      }
+
+      .service-card h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+      }
+
+      .service-card p {
+        font-size: 1rem;
+        margin-bottom: 20px;
+        color: var(--text-primary);
+        opacity: 0.8;
+      }
+
+      .service-card a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: color 0.3s ease;
+      }
+
+      .service-card a:hover {
+        color: var(--button-hover-bg);
+      }
+
+     .review-section {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 24px;
+    box-shadow: 0 4px 6px var(--shadow);
+}
+
+.review-section h3 {
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.review-section form {
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 10px;
+}
+
+.form-select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid var(--input-border);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    background-color: var(--input-bg);
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%233496DB%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem top 50%;
+    background-size: 0.65rem auto;
+}
+
+.form-select:focus {
+    border-color: var(--button-bg);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--input-focus-shadow);
+}
+
+.form-textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid var(--input-border);
+    border-radius: 8px;
+    min-height: 120px;
+    font-size: 1rem;
+    line-height: 1.5;
+    transition: all 0.3s ease;
+    background-color: var(--input-bg);
+    resize: vertical;
+}
+
+.form-textarea:focus {
+    border-color: var(--button-bg);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--input-focus-shadow);
+}
+
+button[type="submit"] {
+    background: var(--button-bg);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    font-size: 1rem;
+}
+
+button[type="submit"]:hover {
+    background: var(--button-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px var(--shadow);
+}
+
+.your-reviews {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.your-reviews h4 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.review-item {
+    background: var(--input-bg);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px var(--shadow);
+    border-left: 4px solid var(--button-bg);
+}
+
+.review-rating {
+    color: #f1c40f;
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.review-item p {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.review-item small {
+    color: var(--text-primary);
+    opacity: 0.7;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+    .review-section {
+        margin: 0.5rem;
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .review-section h3 {
+        font-size: 1.2rem;
+        padding: 1rem;
+    }
+
+    .form-select {
+        padding: 0.7rem 1rem;
+        font-size: 0.95rem;
+    }
+
+    .form-textarea {
+        padding: 0.8rem;
+        font-size: 0.95rem;
+        min-height: 100px;
+    }
+
+    button[type="submit"] {
+        padding: 0.7rem 1rem;
+        font-size: 0.95rem;
+    }
+
+    .your-reviews {
+        padding-top: 1.5rem;
+    }
+
+    .review-item {
+        padding: 1rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .review-rating {
+        font-size: 1rem;
+    }
+
+    .review-item p {
+        font-size: 0.95rem;
+    }
+
+    .review-item small {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .review-section h3 {
+        font-size: 1.1rem;
+        padding: 0.8rem;
+    }
+
+    .form-textarea {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .form-select {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    button[type="submit"] {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .your-reviews h4 {
+        font-size: 1.1rem;
+    }
+
+    .review-item {
+        padding: 0.8rem;
+    }
+
+    .review-item p {
+        font-size: 0.9rem;
+    }
+}
+.reviews-section {
+    padding: 80px 40px;
+    text-align: center;
+    background: var(--container-bg);
+    box-shadow: 0 4px 6px var(--shadow);
+    border-radius: 20px;
+    margin-bottom: 60px;
+}
+
+.reviews-section h2 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 40px;
+    color: var(--text-primary);
+}
+
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.review-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 5px 15px var(--shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px var(--shadow);
+}
+
+.review-card .rating {
+    color: #ffd700;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.review-card .review-text {
+    font-size: 1rem;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    font-style: italic;
+}
+
+.review-card .review-author {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+    .reviews-section {
+        padding: 40px 20px;
+    }
+
+    .reviews-section h2 {
+        font-size: 2rem;
+    }
+
+    .reviews-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .review-card {
+        padding: 20px;
+    }
+
+    .review-card .rating {
+        font-size: 1.3rem;
+    }
+
+    .review-card .review-text {
+        font-size: 0.95rem;
+    }
+
+    .review-card .review-author {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .reviews-section {
+        padding: 30px 15px;
+    }
+
+    .reviews-section h2 {
+        font-size: 1.8rem;
+    }
+
+    .review-card {
+        padding: 15px;
+    }
+
+    .review-card .rating {
+        font-size: 1.2rem;
+    }
+
+    .review-card .review-text {
+        font-size: 0.9rem;
+    }
+
+    .review-card .review-author {
+        font-size: 0.95rem;
+    }
+}
+      .team-section {
+        padding: 80px 40px;
+        text-align: center;
+        background: var(--container-bg);
+        border-radius: 20px;
+        margin: 60px 0;
+      }
+
+      .team-section h2 {
+        font-size: 3.5rem;
+        font-weight: 900;
+        margin-bottom: 40px;
+        color: var(--text-primary);
+      }
+
+      .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 30px;
+      }
+
+      .team-member {
+        background: var(--img-container-bg);
+        border-top-right-radius: 30px;
+        border-bottom-left-radius: 30px;
+        padding: 30px;
+        box-shadow: 0px 5px 10px var(--shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .team-member:hover {
+        transform: translateY(-5px) rotate(2deg);
+        box-shadow: 0 10px 20px var(--shadow);
+      }
+
+      .team-member img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin-bottom: 20px;
+        object-fit: cover;
+        border: 3px solid wheat;
+        transition: transform 0.3s ease;
+      }
+
+      .team-member img:hover {
+        transform: scale(1.1);
+      }
+
+      .team-member h3 {
+        font-size: 1.5rem;
+        font-weight: 500;
+        margin-bottom: 10px;
+        color: var(--accent);
+      }
+
+      .team-member p {
+        font-size: 0.8rem;
+        color: var(--text-primary);
+        opacity: 0.8;
+      }
+
+      .footer {
+        padding: 24px;
+        text-align: left;
+        background: var(--container-bg);
+        border-top: 1px solid var(--border-color);
+      }
+
+      .footer p {
+        font-size: 0.875rem;
+        color: var(--text-primary);
+      }
+
+      .social-icons {
+        margin-top: 10px;
+      }
+
+      .social-icons a {
+        color: var(--text-primary);
+        font-size: 1.2rem;
+        margin: 0 10px;
+        transition: color 0.3s ease;
+      }
+
+      .social-icons a:hover {
+        color: var(--accent);
+      }
+
+      @media (max-width: 768px) {
+        .navbar {
+          padding: 0 16px;
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .hero-section,
+        .about-section {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .hero-text,
+        .about-text {
+          max-width: 100%;
+          margin-bottom: 24px;
+        }
+
+        .about-images {
+          max-width: 80%;
+        }
+
+        .hero-text h1,
+        .about-text h2,
+        .services-section h2,
+        .reviews-section h2,
+        .team-section h2 {
+          font-size: 2rem;
+        }
+
+        .hero-text h1.bb {
+          font-size: 2.3rem;
+        }
+
+        .hero-text p {
+          font-size: 1rem;
+        }
+
+        .hero-image img {
+          max-width: 80%;
+        }
+
+        .intro-logo {
+          width: 250px;
+          height: 200px;
+        }
+
+        .intro-title {
+          font-size: 2.5rem;
+        }
+      }
+      .footer {
+  background: var(--container-bg);
+  color: var(--text-primary);
+  border-top: 1px solid var(--border-color);
+  padding: 0;
+}
+
+.footer-logo-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent);
+  margin-left: 30px;
+}
+
+.footer-title {
+  color: var(--accent);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.footer-links li,
+.footer-contact li {
+  margin-bottom: 12px;
+  font-size: 1rem;
+}
+
+.footer-links a {
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: var(--accent);
+}
+
+.footer-contact i {
+  color: var(--accent);
+  width: 20px;
+}
+
+.social-icons a {
+  color: var(--text-primary);
+  font-size: 1.4rem;
+  margin: 0 10px;
+  transition: all 0.3s ease;
+  
+}
+
+.social-icons a:hover {
+  color: var(--accent);
+  transform: translateY(-3px);
+}
+
+.footer-bottom {
+  background: rgba(0, 0, 0, 0.05);
+  border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+  .footer-title {
+    font-size: 1.3rem;
+    margin-top: 20px;
+  }
+
+  .footer-logo-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .social-icons a {
+    font-size: 1.2rem;
+    margin: 0 8px;
+  }
+}
+      @media (max-width: 480px) {
+        .logo {
+          font-size: 1rem;
+        }
+
+        .theme-toggle {
+          width: 36px;
+          height: 36px;
+          font-size: 1rem;
+        }
+
+        .signup-btn {
+          padding: 6px 12px;
+          font-size: 0.875rem;
+        }
+
+        .hero-text h1,
+        .about-text h2,
+        .services-section h2,
+        .reviews-section h2,
+        .team-section h2 {
+          font-size: 2rem;
+        }
+
+        .hero-text h1.bb {
+          font-size: 2.3rem;
+        }
+
+        .hero-text p {
+          font-size: 1rem;
+        }
+
+        .service-card,
+        .review-card,
+        .team-member {
+          padding: 16px;
+        }
+
+        .intro-logo {
+          width: 250px;
+          height: 200px;
+        }
+
+        .intro-title {
+          font-size: 2.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body data-theme="light">
+    <!-- Intro Screen -->
+    <div class="intro-screen" id="introScreen">
+      <img src="{% static 'img/logo.jpg' %}" alt="Brain Bloom Logo" class="intro-logo" />
+      <h1 class="intro-title">Brain Bloom</h1>
+    </div>
+
+    <nav class="navbar">
+      <div class="logo-container">
+        <img src="{% static 'img/logo.jpg' %}" alt="Logo" class="logo-img" />
+        <div class="logo">Brain Bloom</div>
+      </div>
+      <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href="{% url 'signup' %}" class="signup-btn">Sign Up</a>
+      </div>
+      <div class="nav-controls">
+        <button class="theme-toggle" aria-label="Toggle theme">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <section class="hero-section" id="home">
+        <div class="hero-text">
+          <h1>Welcome to </h1><br>
+          <h1 class="bb"> Brain Bloom</h1>
+          <p>
+            Brain Bloom is a virtual group study platform for university students. Log in with your institution email to create or join 30-minute study rooms, chat, upload PDFs, ask AI questions, and take quizzes to boost your ranking!
+          </p>
+          <a href="{% url 'signup' %}" class="cta-btn">Get Started</a>
+        </div>
+        <div class="hero-image">
+          <img src="{% static 'img/study3.png' %}" alt="Study Group" />
+        </div>
+      </section>
+
+      <section class="about-section" id="about">
+        <div class="about-images">
+          <img id="about" src="{% static 'img/background-illustration.png' %}" alt="About Image 1" />
+          <img src="{% static 'img/about2.png' %}" alt="About Image 1" />
+        </div>
+        <div class="about-text">
+          <h2>About Brain Bloom</h2>
+          <br>
+          <p>
+            Brain Bloom is dedicated to enhancing the academic experience of university students through collaborative learning. Our platform allows students to create and join virtual study rooms tailored to their department, course, and topic of interest.
+          </p>
+          <p>
+            We aim to foster a supportive community where students can chat, share resources, and engage in interactive quizzes, all while tracking their progress on a personalized dashboard. Join us to elevate your study game!
+          </p><br><br>
+          <h3>How Brain Bloom works?</h3>
+          <br><br>
+          <div class="about-feature">
+            <ul>
+              <li style="list-style: none;"> <p style="text-align: center;"><i class="fa-solid fa-envelope"></i><br>Register with NSU Email</p></li>
+              <li style="list-style: none;"> <p style="text-align: center;"><i class="fa-solid fa-right-to-bracket"></i><br>Create or Join Study Rooms</p></li>
+              <li style="list-style: none;"> <p style="text-align: center;"> <i class="fa-solid fa-paperclip"></i><br>Upload pdf & take quiz</p></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="services-section">
+        <h2>We Provide Best Services</h2>
+        <div class="services-grid">
+          <div class="service-card">
+            <i class="fas fa-users"></i>
+            <h3>Virtual Study Rooms</h3>
+            <p>Create or join 30-minute study rooms, either public or private, to collaborate with peers on specific topics.</p>
+            <a href="#">Explore More &rarr;</a>
+          </div>
+          <div class="service-card">
+            <i class="fas fa-comments"></i>
+            <h3>Interactive Features</h3>
+            <p>Chat with study partners, upload PDFs for summarization, and ask questions to an AI assistant.</p>
+            <a href="#">Explore More &rarr;</a>
+          </div>
+          <div class="service-card">
+            <i class="fas fa-trophy"></i>
+            <h3>Quizzes & Rankings</h3>
+            <p>Take quizzes after 20 minutes of study and see your ranking on the dashboard to track your progress.</p>
+            <a href="#">Explore More &rarr;</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- <section class="reviews-section">
+        <h2>What Our Users Say</h2>
+        <div class="reviews-grid">
+          <div class="review-card">
+            <div class="stars">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p>"Brain Bloom has transformed the way I study! The virtual rooms make group study so easy and interactive."</p>
+            <div class="reviewer">Mohammad Ali, Computer Science Student</div>
+          </div>
+          <div class="review-card">
+            <div class="stars">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star-half-alt"></i>
+            </div>
+            <p>"I love the chat feature it really helps me to connected with friends and get help when I need it."</p>
+            <div class="reviewer">Setu, EEE Student</div>
+          </div>
+          <div class="review-card">
+            <div class="stars">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p>"The AI assistant is a game-changer for quick clarifications during study sessions."</p>
+            <div class="reviewer">Tahmina, BBA Student</div>
+          </div>
+        </div>
+      </section> -->
+
+  <section class="reviews-section">
+    <h2>What Our Users Say</h2>
+    <div class="reviews-grid">
+        {% for review in reviews %}
+        <div class="review-card">
+            <div class="rating">
+                {% for _ in "x"|ljust:review.rating %}
+                <span class="star">★</span>
+                {% endfor %}
+            </div>
+            <p class="review-text">{{ review.text }}</p>
+            <p class="review-author">- {{ review.user.name }}</p>
+        </div>
+        {% empty %}
+        <p>No reviews available yet.</p>
+        {% endfor %}
+    </div>
+</section>
+      <section class="team-section" id="team">
+        <h2>Meet Our Team</h2>
+        <div class="team-grid">
+          <div class="team-member">
+            <img src="{% static 'img/anika.jpg' %}" alt="Team Member 1" />
+            <h3>Anika Hossain</h3>
+            <p>CSE Student of NSU</p>
+          </div>
+          <div class="team-member">
+            <img src="{% static 'img/mullik.jpg' %}" alt="Team Member 2" />
+            <h3>Mohsin Mullik</h3>
+            <p>CSE Student of NSU</p>
+          </div>
+          <div class="team-member">
+            <img src="{% static 'img/akib.jpg' %}" alt="Team Member 3" />
+            <h3>Akib Mahmud</h3>
+            <p>CSE Student of NSU</p>
+          </div>
+          <div class="team-member">
+            <img src="{% static 'img/samad.jpg' %}" alt="Team Member 4" />
+            <h3>Abdus Samad Sunny</h3>
+            <p>CSE Student of NSU</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- <footer class="footer" id="contact">
+      <p>© 2025 Brain Bloom. All rights reserved.</p>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+    </footer> -->
+
+    <footer class="footer" id="contact">
+      <div class="container">
+        <div class="row py-5">
+          <!-- Logo and Social Section -->
+          <div class="col-lg-4 col-md-6 mb-4 mb-md-0 text-center text-md-start">
+            <div class="footer-logo mb-3">
+              <img src="{% static 'img/logo.jpg' %}" alt="Brain Bloom Logo" class="footer-logo-img mb-2">
+              <h5 class="footer-title">Brain Bloom</h5>
+            </div>
+            <div class="social-icons">
+              <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+              <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+              <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+          </div>
+    
+          <!-- Links Section -->
+          <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+            <h5 class="footer-title">Quick Links</h5>
+            <ul class="list-unstyled footer-links">
+              <li><a href="#home"><i class="fas fa-angle-right me-2"></i>Home</a></li>
+              <li><a href="#about"><i class="fas fa-angle-right me-2"></i>About</a></li>
+              <li><a href="{% url 'signup' %}"><i class="fas fa-angle-right me-2"></i>Sign Up</a></li>
+              <li><a href="{% url 'login' %}"><i class="fas fa-angle-right me-2"></i>Login</a></li>
+            </ul>
+          </div>
+    
+          <!-- Contact Section -->
+          <div class="col-lg-4 col-md-12">
+            <h5 class="footer-title">Contact Us</h5>
+            <ul class="list-unstyled footer-contact">
+              <li><i class="fas fa-map-marker-alt me-2"></i>North South University, Dhaka, Bangladesh</li>
+              <li><i class="fas fa-phone me-2"></i>+01 234 567 89</li>
+              <li><i class="fas fa-envelope me-2"></i>brainbloom2b@gmail.com</li>
+            </ul>
+          </div>
+        </div>
+    
+        <!-- Copyright -->
+        <div class="footer-bottom text-center py-3">
+          <p class="mb-0">© 2025 Brain Bloom. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+    
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const themeToggle = document.querySelector(".theme-toggle");
+        const body = document.body;
+        const introScreen = document.getElementById("introScreen");
+
+        // Check localStorage for saved theme preference
+        const savedTheme = localStorage.getItem("theme") || "light";
+        body.setAttribute("data-theme", savedTheme);
+        themeToggle.querySelector("i").className = savedTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+
+        themeToggle.addEventListener("click", () => {
+          const currentTheme = body.getAttribute("data-theme");
+          const newTheme = currentTheme === "light" ? "dark" : "light";
+          body.setAttribute("data-theme", newTheme);
+          themeToggle.querySelector("i").className = newTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+          localStorage.setItem("theme", newTheme); // Save preference
+        });
+
+        // Intro animation timing
+        setTimeout(() => {
+          introScreen.classList.add("hidden");
+        }, 2000); // Animation duration: 1s for logo + 1s for title + 0.5s for fade out
+      });
+    </script>
+
+
+<!-- <script>
+  const swiper = new Swiper('.swiper-container', {
+      loop: false,  // Disabled loop mode
+      autoplay: {
+          delay: 5000,
+      },
+      pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+      },
+      effect: 'coverflow',
+      grabCursor: true,
+      centeredSlides: true,
+      slidesPerView: 1,
+      slidesPerGroup: 1,
+      coverflowEffect: {
+          rotate: 20,
+          stretch: 0,
+          depth: 200,
+          modifier: 1,
+          slideShadows: true,
+      },
+  });
+</script> -->
+<script>
+  if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+          navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+              .then(registration => {
+                  console.log('Service Worker registered with scope:', registration.scope);
+              })
+              .catch(error => {
+                  console.error('Service Worker registration failed:', error);
+              });
+      });
+  }
+</script>
+  </body>
+</html>
